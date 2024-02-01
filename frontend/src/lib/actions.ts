@@ -1,9 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import z from "zod";
+import { putItem } from "@/lib/datastore";
 import { putObject } from "@/lib/filestore";
+import { revalidatePath } from "next/cache";
 import { v4 as uuidv4 } from "uuid"; // ES Modules
+import z from "zod";
 
 const inputDataSchema = z.object({
   data: z.string().optional(),
@@ -26,13 +27,18 @@ export async function saveInput(prevState: any, formData: FormData) {
   console.log("Saving input type", inputData.data.type);
   console.log("Saving input file", inputData.data.file);
 
-  if (inputData.data.file) {
-    const id = uuidv4();
+  const id = "ricepotato";
+  if (inputData.data.file && inputData.data.file.size > 0) {
+    console.log("Uploading file to filestore", id);
     putObject(
       `input/${id}`,
       Buffer.from(await inputData.data.file.arrayBuffer()),
       inputData.data.file.type
     );
+  }
+
+  if (inputData.data.data !== undefined) {
+    await putItem(id, inputData.data.data, inputData.data.type);
   }
 
   revalidatePath("/");
