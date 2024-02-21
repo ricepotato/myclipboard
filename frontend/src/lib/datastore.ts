@@ -4,7 +4,8 @@ const region = process.env.AWS_REGION as string;
 const tableName = "myclip-dev";
 
 export interface Item {
-  id: string;
+  id: string; // user id
+  key?: string; // item key
   data?: string;
   type?: string;
   timestamp: string;
@@ -31,6 +32,7 @@ export async function getDataList(
   const data = result.Items?.map((item) => {
     return {
       id: item.id.S as string,
+      key: item.key?.S as string,
       data: item.data.S as string,
       type: item.type.S as string,
       timestamp: item.timestamp.N as string,
@@ -49,16 +51,33 @@ export async function getDataList(
   };
 }
 
-export async function putItem(id: string, data: string, type: string) {
+export async function putItem(
+  id: string,
+  key: string,
+  data: string,
+  type: string
+) {
   const client = new DynamoDB({ region });
   const time = Date.now();
   await client.putItem({
     TableName: tableName,
     Item: {
       id: { S: id },
+      key: { S: key },
       data: { S: data },
       type: { S: type },
       timestamp: { N: `${time}` },
+    },
+  });
+}
+
+export async function deleteItem(id: string, key: string) {
+  const client = new DynamoDB({ region });
+  await client.deleteItem({
+    TableName: tableName,
+    Key: {
+      id: { S: id },
+      key: { S: key },
     },
   });
 }

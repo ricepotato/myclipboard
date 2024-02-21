@@ -1,4 +1,5 @@
 import { ClipboardForm } from "@/components/form";
+import { deleteItemAction } from "@/lib/actions";
 import { getDataList, Item } from "@/lib/datastore";
 import Image from "next/image";
 import { Suspense } from "react";
@@ -31,20 +32,16 @@ async function ClipboardItems() {
           <li key={item.id}>
             {item.type === "image" ? (
               <>
-                [{datetimeStr.toLocaleString()}]
+                [{item.key}] [{datetimeStr.toLocaleString()}]
                 <ImageItem item={item} />
-                <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                  Delete
-                </button>
+                <DeleteItemForm id={item.id} keyVal={item.key} />
               </>
             ) : (
               <>
                 <div>
-                  [{datetimeStr.toLocaleString()}] {item.data}
+                  [{item.key}] [{datetimeStr.toLocaleString()}] {item.data}
                 </div>
-                <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                  Delete
-                </button>
+                <DeleteItemForm id={item.id} keyVal={item.key} />
               </>
             )}
           </li>
@@ -57,5 +54,26 @@ async function ClipboardItems() {
 function ImageItem({ item }: { item: Item }) {
   return (
     <Image alt={item.id} width={250} height={250} src={`/files/${item.data}`} />
+  );
+}
+
+function DeleteItemForm({
+  id,
+  keyVal,
+}: {
+  id: string;
+  keyVal: string | undefined;
+}) {
+  return (
+    <form action={deleteItemAction}>
+      <input type="hidden" name="id" value={id} />
+      <input type="hidden" name="key" value={keyVal} />
+      <button
+        type="submit"
+        className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Delete
+      </button>
+    </form>
   );
 }

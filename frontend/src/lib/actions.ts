@@ -1,6 +1,6 @@
 "use server";
 
-import { putItem } from "@/lib/datastore";
+import { putItem, deleteItem } from "@/lib/datastore";
 import { putObject } from "@/lib/filestore";
 import { revalidatePath } from "next/cache";
 import { v4 as uuidv4 } from "uuid"; // ES Modules
@@ -10,6 +10,11 @@ const inputDataSchema = z.object({
   data: z.string().optional(),
   type: z.string(),
   file: z.instanceof(File).optional(),
+});
+
+const deleteItemFormSchema = z.object({
+  id: z.string(),
+  key: z.string(),
 });
 
 export async function saveInput(prevState: any, formData: FormData) {
@@ -28,22 +33,39 @@ export async function saveInput(prevState: any, formData: FormData) {
   console.log("Saving input file", inputData.data.file);
 
   const id = "ricepotato";
+  const key = uuidv4();
   if (inputData.data.file && inputData.data.file.size > 0) {
     console.log("Uploading file to filestore", id);
-    const imageId = `input/${id}/${uuidv4()}`;
+    const imageId = `input/${id}/key}`;
     console.log(`image put Object imageId=${imageId}`);
     await putObject(
       imageId,
       Buffer.from(await inputData.data.file.arrayBuffer()),
       inputData.data.file.type
     );
-    await putItem(id, imageId, inputData.data.type);
+    await putItem(id, key, imageId, inputData.data.type);
   } else if (inputData.data.data !== undefined) {
-    await putItem(id, inputData.data.data, inputData.data.type);
+    await putItem(id, key, inputData.data.data, inputData.data.type);
   } else {
     console.error("file data error.");
   }
 
   revalidatePath("/");
   return { success: true };
+}
+
+export async function deleteItemAction(formData: FormData) {
+  const inputData = deleteItemFormSchema.safeParse(
+    Object.fromEntries(formData)
+  );
+  if (inputData.success === false) {
+    console.warn(
+      `Invalid input data. error=${JSON.stringify(
+        inputData.error.flatten().fieldErrors
+      )}`
+    );
+    return inputData.error.flatten().fieldErrors;
+  }
+  console.log("Deleting item", inputData.data.id, inputData.data.key);
+  revalidatePath("/");
 }
