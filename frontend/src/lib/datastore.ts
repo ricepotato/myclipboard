@@ -3,14 +3,14 @@ import { DynamoDB } from "@aws-sdk/client-dynamodb";
 const region = process.env.AWS_REGION as string;
 const tableName = "myclip-dev";
 
-interface Item {
+export interface Item {
   id: string;
   data?: string;
   type?: string;
   timestamp: string;
 }
 
-interface Output {
+export interface Output {
   lastItem: Item | null;
   data: Item[];
 }

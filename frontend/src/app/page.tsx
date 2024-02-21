@@ -1,5 +1,6 @@
 import { ClipboardForm } from "@/components/form";
-import { getDataList } from "@/lib/datastore";
+import { getDataList, Item } from "@/lib/datastore";
+import Image from "next/image";
 import { Suspense } from "react";
 
 export default function Home() {
@@ -28,10 +29,33 @@ async function ClipboardItems() {
         const datetimeStr = new Date(parseInt(item.timestamp));
         return (
           <li key={item.id}>
-            [{datetimeStr.toLocaleString()}] {item.data}
+            {item.type === "image" ? (
+              <>
+                [{datetimeStr.toLocaleString()}]
+                <ImageItem item={item} />
+                <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                  Delete
+                </button>
+              </>
+            ) : (
+              <>
+                <div>
+                  [{datetimeStr.toLocaleString()}] {item.data}
+                </div>
+                <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                  Delete
+                </button>
+              </>
+            )}
           </li>
         );
       })}
     </ul>
+  );
+}
+
+function ImageItem({ item }: { item: Item }) {
+  return (
+    <Image alt={item.id} width={250} height={250} src={`/files/${item.data}`} />
   );
 }
