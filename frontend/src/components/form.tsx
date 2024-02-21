@@ -21,7 +21,7 @@ export function ClipboardForm() {
         reader.onload = function (event) {
           console.log(event.target?.result); // This will log the image data URL
           if (typeof event.target?.result === "string") {
-            setImage(event.target?.result);
+            setImage(event.target?.result); // preview
           }
           setType("image");
         };

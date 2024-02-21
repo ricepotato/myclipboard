@@ -30,15 +30,18 @@ export async function saveInput(prevState: any, formData: FormData) {
   const id = "ricepotato";
   if (inputData.data.file && inputData.data.file.size > 0) {
     console.log("Uploading file to filestore", id);
-    putObject(
-      `input/${id}`,
+    const imageId = `input/${id}/${uuidv4()}`;
+    console.log(`image put Object imageId=${imageId}`);
+    await putObject(
+      imageId,
       Buffer.from(await inputData.data.file.arrayBuffer()),
       inputData.data.file.type
     );
-  }
-
-  if (inputData.data.data !== undefined) {
+    await putItem(id, imageId, inputData.data.type);
+  } else if (inputData.data.data !== undefined) {
     await putItem(id, inputData.data.data, inputData.data.type);
+  } else {
+    console.error("file data error.");
   }
 
   revalidatePath("/");
