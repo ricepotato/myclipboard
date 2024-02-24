@@ -14,14 +14,13 @@ export function ClipboardForm() {
   const handlePaste = (event: ClipboardEvent<HTMLInputElement>) => {
     const items = event.clipboardData?.items;
     Array.from(items || []).forEach((item) => {
-      console.log(item);
       if (item.type.includes("image")) {
         const blob = item.getAsFile();
         const reader = new FileReader();
         reader.onload = function (event) {
-          console.log(event.target?.result); // This will log the image data URL
+          //console.log(event.target?.result); // This will log the image data URL
           if (typeof event.target?.result === "string") {
-            setImage(event.target?.result); // preview
+            //setImage(event.target?.result); // preview
           }
           setType("image");
         };

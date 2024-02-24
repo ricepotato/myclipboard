@@ -1,7 +1,7 @@
 "use server";
 
-import { putItem, deleteItem } from "@/lib/datastore";
-import { putObject } from "@/lib/filestore";
+import { putItem, deleteItem, getItem } from "@/lib/supabase";
+import { deleteObject, putObject } from "@/lib/filestore";
 import { revalidatePath } from "next/cache";
 import { v4 as uuidv4 } from "uuid"; // ES Modules
 import z from "zod";
@@ -14,7 +14,7 @@ const inputDataSchema = z.object({
 
 const deleteItemFormSchema = z.object({
   id: z.string(),
-  key: z.string(),
+  userId: z.string(),
 });
 
 export async function saveInput(prevState: any, formData: FormData) {
@@ -36,16 +36,20 @@ export async function saveInput(prevState: any, formData: FormData) {
   const key = uuidv4();
   if (inputData.data.file && inputData.data.file.size > 0) {
     console.log("Uploading file to filestore", id);
-    const imageId = `input/${id}/key}`;
+    const imageId = `input/${id}/${key}`;
     console.log(`image put Object imageId=${imageId}`);
     await putObject(
       imageId,
       Buffer.from(await inputData.data.file.arrayBuffer()),
       inputData.data.file.type
     );
-    await putItem(id, key, imageId, inputData.data.type);
+    await putItem({ user_id: id, value: imageId, type: inputData.data.type });
   } else if (inputData.data.data !== undefined) {
-    await putItem(id, key, inputData.data.data, inputData.data.type);
+    await putItem({
+      user_id: id,
+      value: inputData.data.data,
+      type: inputData.data.type,
+    });
   } else {
     console.error("file data error.");
   }
@@ -66,6 +70,14 @@ export async function deleteItemAction(formData: FormData) {
     );
     return inputData.error.flatten().fieldErrors;
   }
-  console.log("Deleting item", inputData.data.id, inputData.data.key);
+  const item = await getItem(inputData.data.id);
+  if (item === null) {
+    console.warn(`[actions] item not found. id=${inputData.data.id}`);
+    revalidatePath("/");
+    return;
+  }
+  console.log(`deleting item id=${item.id}`);
+  await deleteObject(item.value);
+  await deleteItem(inputData.data.id);
   revalidatePath("/");
 }

@@ -76,7 +76,6 @@ export async function deleteItem(id: string, key: string) {
   await client.deleteItem({
     TableName: tableName,
     Key: {
-      id: { S: id },
       key: { S: key },
     },
   });
