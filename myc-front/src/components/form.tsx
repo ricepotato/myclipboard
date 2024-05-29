@@ -2,7 +2,11 @@
 
 import { ClipboardEvent, useState } from "react";
 
-export function ClipboardForm() {
+export function ClipboardForm({
+  onSubmit,
+}: {
+  onSubmit?: (data: FormData) => void;
+}) {
   const [image, setImage] = useState<string | null>(null);
   const [data, setData] = useState<string>("");
   const [type, setType] = useState<"text" | "image">("text");
@@ -34,6 +38,9 @@ export function ClipboardForm() {
     <form
       onSubmit={(e) => {
         e.preventDefault();
+        if (onSubmit) onSubmit(new FormData(e.target as HTMLFormElement));
+
+        setData("");
       }}
     >
       <label
@@ -51,6 +58,11 @@ export function ClipboardForm() {
               id="fileInput"
               type="file"
               name="file"
+              onChange={(e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                  setType("image");
+                }
+              }}
             />
           </div>
           <input
