@@ -36,6 +36,7 @@ export default function Root() {
   return (
     <main>
       <div className="p-4">
+        <button onClick={fetchClipsData}>refresh</button>
         <Clips clips={clips} />
         <ClipboardForm onSubmit={onSubmit} />
       </div>

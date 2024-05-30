@@ -7,10 +7,18 @@ export default function Clips({ clips }: { clips: IClip[] }) {
         <li key={`${clip.id}`}>
           {clip.imageUrl ? (
             <div>
-              <img src={clip.imageUrl} alt={clip.text} />
+              <div>
+                <img src={clip.imageUrl} alt={clip.text} className="h-24" />
+              </div>
+              <div>
+                <button>copy</button>
+              </div>
             </div>
           ) : null}
-          <div>{clip.text}</div>
+          <div>
+            <code>{clip.text}</code>
+            <button>copy</button>
+          </div>
         </li>
       ))}
     </ul>
