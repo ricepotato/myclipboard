@@ -2,13 +2,17 @@ import {
   addDoc,
   collection,
   getDocs,
+  limit,
   orderBy,
   query,
+  updateDoc,
 } from "firebase/firestore";
-import { auth, db } from "./firebase";
+import { auth, db, storage } from "./firebase";
 import { IClipCreate, IClip } from "./types";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 export const addClip = async ({ text, type, file }: IClipCreate) => {
+  console.log(text, type, file);
   const user = auth.currentUser;
   if (user === null) {
     console.warn("User is not logged in");
@@ -28,10 +32,16 @@ export const addClip = async ({ text, type, file }: IClipCreate) => {
     text,
   };
 
-  await addDoc(collection(db, "clips"), payload);
+  const doc = await addDoc(collection(db, "clips"), payload);
+  if (file) {
+    const locationRef = ref(storage, `clipps/${user.uid}/${doc.id}`);
+    const result = await uploadBytes(locationRef, file);
+    const url = await getDownloadURL(result.ref);
+    updateDoc(doc, { imageUrl: url });
+  }
 };
 
-export const getClips = async (): Promise<IClip[]> => {
+export const getClips = async (size: number = 10): Promise<IClip[]> => {
   const user = auth.currentUser;
   if (user === null) {
     console.warn("User is not logged in");
@@ -39,12 +49,22 @@ export const getClips = async (): Promise<IClip[]> => {
   }
   const clipsQuery = query(
     collection(db, "clips"),
-    orderBy("createDatetime", "desc")
+    orderBy("createDatetime", "desc"),
+    limit(size)
   );
   const snapshot = await getDocs(clipsQuery);
   const result = snapshot.docs.map((doc) => {
-    const { userId, username, createDatetime, type, text } = doc.data();
-    return { id: doc.id, userId, username, createDatetime, type, text };
+    const { userId, username, createDatetime, type, text, imageUrl } =
+      doc.data();
+    return {
+      id: doc.id,
+      userId,
+      username,
+      createDatetime,
+      type,
+      text,
+      imageUrl,
+    };
   });
   return result;
 };

@@ -8,6 +8,7 @@ export default function Root() {
   const onSubmit = async (data: FormData) => {
     const dataText = data.get("data");
     const type = data.get("type");
+    const file = data.get("file");
     if (type === null || type === undefined) {
       console.warn("No type");
       return;
@@ -16,6 +17,7 @@ export default function Root() {
     await addClip({
       text: dataText ? dataText.toString() : undefined,
       type: type.toString(),
+      file: file ? (file as File) : undefined,
     });
 
     fetchClipsData();

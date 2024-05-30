@@ -32,6 +32,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </span>
             </li>
             <li className="mr-6">
+              <Link className="text-blue-500 hover:text-blue-800" to="/login">
+                Login
+              </Link>
+            </li>
+            <li className="mr-6">
               <span
                 className="text-blue-500 hover:text-blue-800 cursor-pointer"
                 onClick={onLogOut}

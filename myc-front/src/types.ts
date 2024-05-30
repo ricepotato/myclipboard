@@ -9,4 +9,5 @@ export interface IClip extends IClipCreate {
   userId: string;
   username: string;
   createDatetime: number;
+  imageUrl?: string;
 }
