@@ -18,9 +18,8 @@ export function ClipboardForm({
         const blob = item.getAsFile();
         const reader = new FileReader();
         reader.onload = function (event) {
-          //console.log(event.target?.result); // This will log the image data URL
           if (typeof event.target?.result === "string") {
-            setImage(event.target?.result); // preview
+            //setImage(event.target?.result); // preview
           }
           setType("image");
         };
@@ -29,6 +28,8 @@ export function ClipboardForm({
           const formData = new FormData();
           formData.append("file", blob);
           formData.append("type", "image");
+          formData.append("data", "image");
+          onSubmit?.(formData);
         }
       }
     });
