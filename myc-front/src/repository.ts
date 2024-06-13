@@ -1,15 +1,36 @@
 import {
   addDoc,
   collection,
+  doc,
   getDocs,
   limit,
   orderBy,
   query,
   updateDoc,
+  where,
 } from "firebase/firestore";
-import { auth, db, storage } from "./firebase";
-import { IClipCreate, IClip } from "./types";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { auth, db, storage } from "./firebase";
+import { IClip, IClipCreate } from "./types";
+
+// status enum
+// 0: active
+// 1: deleted
+
+const ClipStatus = {
+  Active: "active",
+  Deleted: "deleted",
+} as const;
+
+export const deleteClip = async (id: string) => {
+  const user = auth.currentUser;
+  if (user === null) {
+    console.warn("User is not logged in");
+    return;
+  }
+  const docRef = doc(db, "clips", id);
+  await updateDoc(docRef, { status: ClipStatus.Deleted });
+};
 
 export const addClip = async ({ text, type, file }: IClipCreate) => {
   console.log(text, type, file);
@@ -30,6 +51,7 @@ export const addClip = async ({ text, type, file }: IClipCreate) => {
     createDatetime: Date.now(),
     type,
     text,
+    status: ClipStatus.Active,
   };
 
   const doc = await addDoc(collection(db, "clips"), payload);
@@ -49,6 +71,7 @@ export const getClips = async (size: number = 10): Promise<IClip[]> => {
   }
   const clipsQuery = query(
     collection(db, "clips"),
+    where("status", "==", ClipStatus.Active),
     orderBy("createDatetime", "desc"),
     limit(size)
   );

@@ -5,7 +5,7 @@ export default function Clips({ clips }: { clips: IClip[] }) {
     <ul>
       {clips.map((clip) => (
         <li key={`${clip.id}`}>
-          {clip.imageUrl ? (
+          {clip.type.includes("image") && clip.imageUrl ? (
             <div>
               <div>
                 <img src={clip.imageUrl} alt={clip.text} className="h-24" />
@@ -18,6 +18,7 @@ export default function Clips({ clips }: { clips: IClip[] }) {
           <div>
             <code>{clip.text}</code>
             <button>copy</button>
+            <button>delete</button>
           </div>
         </li>
       ))}
