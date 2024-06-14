@@ -50,7 +50,7 @@ export const addClip = async ({ text, type, file }: IClipCreate) => {
     username: user.displayName,
     createDatetime: Date.now(),
     type,
-    text,
+    text: text || "",
     status: ClipStatus.Active,
   };
 
