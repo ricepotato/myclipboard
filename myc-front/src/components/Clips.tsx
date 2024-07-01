@@ -1,7 +1,13 @@
-import { IClip } from "../types";
 import { deleteClip } from "../repository";
+import { IClip } from "../types";
 
-export default function Clips({ clips }: { clips: IClip[] }) {
+export default function Clips({
+  clips,
+  onDelete,
+}: {
+  clips: IClip[];
+  onDelete: (id: string) => void;
+}) {
   return (
     <ul>
       {clips.map((clip) => (
@@ -35,7 +41,10 @@ export default function Clips({ clips }: { clips: IClip[] }) {
               )}
               <button
                 className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                onClick={() => deleteClip(clip.id)}
+                onClick={() => {
+                  deleteClip(clip.id);
+                  onDelete(clip.id);
+                }}
               >
                 delete
               </button>

@@ -33,11 +33,15 @@ export default function Root() {
     const result = await getClips();
     setClips(result);
   };
+
+  const onDelete = (id: string) => {
+    setClips((prev) => prev.filter((clip) => clip.id !== id));
+  };
   return (
     <main>
       <div className="p-4">
         <button onClick={fetchClipsData}>refresh</button>
-        <Clips clips={clips} />
+        <Clips clips={clips} onDelete={onDelete} />
         <ClipboardForm onSubmit={onSubmit} />
       </div>
     </main>

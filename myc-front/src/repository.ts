@@ -56,7 +56,7 @@ export const addClip = async ({ text, type, file }: IClipCreate) => {
 
   const doc = await addDoc(collection(db, "clips"), payload);
   if (file) {
-    const locationRef = ref(storage, `clipps/${user.uid}/${doc.id}`);
+    const locationRef = ref(storage, `clips/${user.uid}/${doc.id}`);
     const result = await uploadBytes(locationRef, file);
     const url = await getDownloadURL(result.ref);
     updateDoc(doc, { imageUrl: url });
