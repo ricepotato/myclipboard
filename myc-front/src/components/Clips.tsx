@@ -35,9 +35,14 @@ export default function Clips({
                   copy
                 </button>
               ) : (
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <a
+                  href={clip.imageUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                >
                   download
-                </button>
+                </a>
               )}
               <button
                 className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
