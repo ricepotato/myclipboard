@@ -1,6 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
-import { NavigationMenu, NavigationMenuItem } from "./ui/navigation-menu";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "./ui/navigation-menu";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
@@ -16,9 +23,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <>
       <header>
         <NavigationMenu>
-          <NavigationMenuItem>
-            <Link to="/">Home</Link>
-          </NavigationMenuItem>
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <NavigationMenuLink href="/">Home</NavigationMenuLink>
+              <NavigationMenuLink href="/profile">Profile</NavigationMenuLink>
+              <NavigationMenuTrigger>Item One</NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <NavigationMenuLink>Link</NavigationMenuLink>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+          </NavigationMenuList>
         </NavigationMenu>
         <nav>
           <ul className="flex">
