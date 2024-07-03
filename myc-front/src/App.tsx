@@ -7,6 +7,8 @@ import ErrorPage from "./error-page";
 import { auth } from "./firebase";
 import Login from "./routes/login";
 import Root from "./routes/root";
+import { ThemeProvider } from "./components/theme-provider";
+import { cn } from "@/lib/utils";
 
 const router = createBrowserRouter([
   {
@@ -32,16 +34,20 @@ function App() {
     setIsLoading(false);
   };
 
+  cn();
+
   useEffect(() => {
     init();
   }, []);
   return (
     <div className="App">
-      {isLoading ? (
-        <div>loading...</div>
-      ) : (
-        <RouterProvider router={router}></RouterProvider>
-      )}
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        {isLoading ? (
+          <div>loading...</div>
+        ) : (
+          <RouterProvider router={router}></RouterProvider>
+        )}
+      </ThemeProvider>
     </div>
   );
 }
