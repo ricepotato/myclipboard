@@ -1,5 +1,6 @@
 import { deleteClip } from "../repository";
 import { IClip } from "../types";
+import { Button } from "./ui/button";
 
 export default function Clips({
   clips,
@@ -18,7 +19,7 @@ export default function Clips({
                 <img src={clip.imageUrl} alt={clip.text} className="h-24" />
               </div>
               <div>
-                <button>copy</button>
+                <Button>Copy</Button>
               </div>
             </div>
           ) : null}
@@ -35,24 +36,22 @@ export default function Clips({
                   copy
                 </button>
               ) : (
-                <a
-                  href={clip.imageUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                <Button
+                  onClick={() => {
+                    window.open(clip.imageUrl, "_blank");
+                  }}
                 >
-                  download
-                </a>
+                  Download
+                </Button>
               )}
-              <button
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+              <Button
                 onClick={() => {
                   deleteClip(clip.id);
                   onDelete(clip.id);
                 }}
               >
-                delete
-              </button>
+                Delete
+              </Button>
             </div>
           </div>
         </li>

@@ -1,14 +1,13 @@
 import "./index.css";
 
 import { useEffect, useState } from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Layout from "./components/Layout";
+import { ThemeProvider } from "./components/theme-provider";
 import ErrorPage from "./error-page";
 import { auth } from "./firebase";
 import Login from "./routes/login";
 import Root from "./routes/root";
-import { ThemeProvider } from "./components/theme-provider";
-import { cn } from "@/lib/utils";
 
 const router = createBrowserRouter([
   {
@@ -33,8 +32,6 @@ function App() {
     await auth.authStateReady();
     setIsLoading(false);
   };
-
-  cn();
 
   useEffect(() => {
     init();
