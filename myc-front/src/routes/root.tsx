@@ -3,6 +3,7 @@ import Clips from "../components/Clips";
 import { ClipboardForm } from "../components/form";
 import { addClip, getClips } from "../repository";
 import { IClip } from "../types";
+import { IoMdRefresh } from "react-icons/io";
 
 export default function Root() {
   const onSubmit = async (data: FormData) => {
@@ -40,7 +41,12 @@ export default function Root() {
   return (
     <main>
       <div className="p-4">
-        <button onClick={fetchClipsData}>refresh</button>
+        <div className="flex justify-end">
+          <IoMdRefresh
+            className="cursor-pointer size-6"
+            onClick={fetchClipsData}
+          />
+        </div>
         <Clips clips={clips} onDelete={onDelete} />
         <ClipboardForm onSubmit={onSubmit} />
       </div>

@@ -1,6 +1,7 @@
+import { FaRegCopy } from "react-icons/fa6";
+import { MdDeleteOutline, MdOutlineDownloading } from "react-icons/md";
 import { deleteClip } from "../repository";
 import { IClip } from "../types";
-import { Button } from "./ui/button";
 
 export default function Clips({
   clips,
@@ -12,46 +13,41 @@ export default function Clips({
   return (
     <ul>
       {clips.map((clip) => (
-        <li className="flex p-2" key={`${clip.id}`}>
-          {clip.type.includes("image") && clip.imageUrl ? (
-            <div>
-              <div>
-                <img src={clip.imageUrl} alt={clip.text} className="h-24" />
-              </div>
-              <div>
-                <Button>Copy</Button>
-              </div>
-            </div>
-          ) : null}
-          <div>
-            <code>{clip.text}</code>
+        <li
+          className="my-2 p-4 flex border min-h-24 rounded-sm w-full justify-between items-center"
+          key={`${clip.id}`}
+        >
+          <div className="flex w-full justify-between items-center ">
+            {clip.type.includes("image") && clip.imageUrl ? (
+              <img src={clip.imageUrl} alt={clip.text} className="h-24" />
+            ) : (
+              <pre>
+                <code>{clip.text}</code>
+              </pre>
+            )}
             <div className="flex gap-1">
               {clip.type.includes("text") ? (
-                <button
+                <FaRegCopy
+                  className="cursor-pointer size-6"
                   onClick={() => {
                     navigator.clipboard.writeText(clip.text as string);
                   }}
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  copy
-                </button>
+                />
               ) : (
-                <Button
+                <MdOutlineDownloading
+                  className="cursor-pointer size-6"
                   onClick={() => {
                     window.open(clip.imageUrl, "_blank");
                   }}
-                >
-                  Download
-                </Button>
+                />
               )}
-              <Button
+              <MdDeleteOutline
+                className="cursor-pointer size-6"
                 onClick={() => {
                   deleteClip(clip.id);
                   onDelete(clip.id);
                 }}
-              >
-                Delete
-              </Button>
+              />
             </div>
           </div>
         </li>
