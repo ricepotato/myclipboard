@@ -1,7 +1,7 @@
-import { FaRegCopy } from "react-icons/fa6";
 import { MdDeleteOutline, MdOutlineDownloading } from "react-icons/md";
 import { deleteClip } from "../repository";
 import { IClip } from "../types";
+import { CopyCheckButton } from "./buttons";
 
 export default function Clips({
   clips,
@@ -39,11 +39,8 @@ function Clip({
       )}
       <div className="flex gap-1">
         {clip.type.includes("text") ? (
-          <FaRegCopy
-            className="cursor-pointer size-6"
-            onClick={() => {
-              navigator.clipboard.writeText(clip.text as string);
-            }}
+          <CopyCheckButton
+            onClick={() => navigator.clipboard.writeText(clip.text as string)}
           />
         ) : (
           <MdOutlineDownloading
