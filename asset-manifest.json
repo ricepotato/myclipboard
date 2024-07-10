@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/myclipboard/static/css/main.a033ca94.css",
+    "main.js": "/myclipboard/static/js/main.d1adf20e.js",
+    "static/js/453.85492d77.chunk.js": "/myclipboard/static/js/453.85492d77.chunk.js",
+    "index.html": "/myclipboard/index.html",
+    "main.a033ca94.css.map": "/myclipboard/static/css/main.a033ca94.css.map",
+    "main.d1adf20e.js.map": "/myclipboard/static/js/main.d1adf20e.js.map",
+    "453.85492d77.chunk.js.map": "/myclipboard/static/js/453.85492d77.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.a033ca94.css",
+    "static/js/main.d1adf20e.js"
+  ]
+}
