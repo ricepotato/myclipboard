@@ -29,13 +29,11 @@ function Clip({
   onDelete: (id: string) => void;
 }) {
   return (
-    <div className="my-2 p-4 min-h-24 border flex w-full justify-between items-center rounded-sm">
+    <div className="my-2 p-4 min-h-24 border flex gap-1 w-full justify-between items-center rounded-sm break-words">
       {clip.type.includes("image") && clip.imageUrl ? (
         <img src={clip.imageUrl} alt={clip.text} className="h-24" />
       ) : (
-        <pre>
-          <code>{clip.text}</code>
-        </pre>
+        <code className="w-full">{clip.text}</code>
       )}
       <div className="flex gap-1">
         {clip.type.includes("text") ? (
