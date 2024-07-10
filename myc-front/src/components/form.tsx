@@ -1,6 +1,7 @@
 "use client";
 
 import { ClipboardEvent, useState } from "react";
+import { Button } from "./ui/button";
 
 export function ClipboardForm({
   onSubmit,
@@ -74,17 +75,13 @@ export function ClipboardForm({
             placeholder="Input your data"
             type="text"
             name="data"
-            className="w-full px-3 py-2 mb-3 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
+            className="w-full h-12 px-3 py-2 mb-3 text-sm leading-tight text-gray-700 border rounded-md shadow appearance-none focus:outline-none focus:shadow-outline"
           />
         </div>
       </div>
-
-      <button
-        type="submit"
-        className="w-full px-4 py-2 font-bold text-white bg-blue-500 rounded-full hover:bg-blue-700 focus:outline-none focus:shadow-outline"
-      >
-        Submit
-      </button>
+      <div className="flex justify-end">
+        <Button type="submit">Submit</Button>
+      </div>
     </form>
   );
 }

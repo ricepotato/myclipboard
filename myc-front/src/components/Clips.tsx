@@ -1,5 +1,7 @@
+import { MdDeleteOutline, MdOutlineDownloading } from "react-icons/md";
 import { deleteClip } from "../repository";
 import { IClip } from "../types";
+import { CopyCheckButton } from "./buttons";
 
 export default function Clips({
   clips,
@@ -11,52 +13,49 @@ export default function Clips({
   return (
     <ul>
       {clips.map((clip) => (
-        <li className="flex p-2" key={`${clip.id}`}>
-          {clip.type.includes("image") && clip.imageUrl ? (
-            <div>
-              <div>
-                <img src={clip.imageUrl} alt={clip.text} className="h-24" />
-              </div>
-              <div>
-                <button>copy</button>
-              </div>
-            </div>
-          ) : null}
-          <div>
-            <code>{clip.text}</code>
-            <div className="flex gap-1">
-              {clip.type.includes("text") ? (
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(clip.text as string);
-                  }}
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  copy
-                </button>
-              ) : (
-                <a
-                  href={clip.imageUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  download
-                </a>
-              )}
-              <button
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                onClick={() => {
-                  deleteClip(clip.id);
-                  onDelete(clip.id);
-                }}
-              >
-                delete
-              </button>
-            </div>
-          </div>
+        <li key={`${clip.id}`}>
+          <Clip clip={clip} onDelete={onDelete} />
         </li>
       ))}
     </ul>
+  );
+}
+
+function Clip({
+  clip,
+  onDelete,
+}: {
+  clip: IClip;
+  onDelete: (id: string) => void;
+}) {
+  return (
+    <div className="my-2 p-4 min-h-24 border flex gap-1 w-full justify-between items-center rounded-sm break-words">
+      {clip.type.includes("image") && clip.imageUrl ? (
+        <img src={clip.imageUrl} alt={clip.text} className="h-24" />
+      ) : (
+        <code className="w-full">{clip.text}</code>
+      )}
+      <div className="flex gap-1">
+        {clip.type.includes("text") ? (
+          <CopyCheckButton
+            onClick={() => navigator.clipboard.writeText(clip.text as string)}
+          />
+        ) : (
+          <MdOutlineDownloading
+            className="cursor-pointer size-6"
+            onClick={() => {
+              window.open(clip.imageUrl, "_blank");
+            }}
+          />
+        )}
+        <MdDeleteOutline
+          className="cursor-pointer size-6"
+          onClick={() => {
+            deleteClip(clip.id);
+            onDelete(clip.id);
+          }}
+        />
+      </div>
+    </div>
   );
 }

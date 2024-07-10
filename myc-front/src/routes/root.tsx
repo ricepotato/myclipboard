@@ -1,3 +1,4 @@
+import { RefreshCheckButton } from "@/components/buttons";
 import { useEffect, useState } from "react";
 import Clips from "../components/Clips";
 import { ClipboardForm } from "../components/form";
@@ -40,7 +41,9 @@ export default function Root() {
   return (
     <main>
       <div className="p-4">
-        <button onClick={fetchClipsData}>refresh</button>
+        <div className="flex justify-end">
+          <RefreshCheckButton onClick={fetchClipsData} />
+        </div>
         <Clips clips={clips} onDelete={onDelete} />
         <ClipboardForm onSubmit={onSubmit} />
       </div>

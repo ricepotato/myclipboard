@@ -1,8 +1,9 @@
 import "./index.css";
 
 import { useEffect, useState } from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Layout from "./components/Layout";
+import { ThemeProvider } from "./components/theme-provider";
 import ErrorPage from "./error-page";
 import { auth } from "./firebase";
 import Login from "./routes/login";
@@ -37,11 +38,13 @@ function App() {
   }, []);
   return (
     <div className="App">
-      {isLoading ? (
-        <div>loading...</div>
-      ) : (
-        <RouterProvider router={router}></RouterProvider>
-      )}
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        {isLoading ? (
+          <div>loading...</div>
+        ) : (
+          <RouterProvider router={router}></RouterProvider>
+        )}
+      </ThemeProvider>
     </div>
   );
 }

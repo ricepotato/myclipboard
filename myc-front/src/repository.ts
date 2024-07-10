@@ -72,6 +72,7 @@ export const getClips = async (size: number = 10): Promise<IClip[]> => {
   const clipsQuery = query(
     collection(db, "clips"),
     where("status", "==", ClipStatus.Active),
+    where("userId", "==", user.uid),
     orderBy("createDatetime", "desc"),
     limit(size)
   );

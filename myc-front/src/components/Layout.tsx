@@ -1,5 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "./ui/navigation-menu";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
@@ -11,41 +18,33 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
   };
   const user = auth.currentUser;
+  console.log(user);
   return (
     <>
       <header>
-        <nav>
-          <ul className="flex">
-            <li className="mr-6">
-              <Link className="text-blue-500 hover:text-blue-800" to="/">
-                Home
+        <NavigationMenu>
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <Link to="/">
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  Home
+                </NavigationMenuLink>
               </Link>
-            </li>
-            <li className="mr-6">
-              <Link className="text-blue-500 hover:text-blue-800" to="/profile">
-                Profile
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <Link to="/login">
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  Login
+                </NavigationMenuLink>
               </Link>
-            </li>
-            <li className="mr-6">
-              <span className="text-blue-500 hover:text-blue-800">
-                {user?.displayName}
-              </span>
-            </li>
-            <li className="mr-6">
-              <Link className="text-blue-500 hover:text-blue-800" to="/login">
-                Login
-              </Link>
-            </li>
-            <li className="mr-6">
-              <span
-                className="text-blue-500 hover:text-blue-800 cursor-pointer"
-                onClick={onLogOut}
-              >
+            </NavigationMenuItem>
+            <NavigationMenuItem className="cursor-pointer" onClick={onLogOut}>
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 Logout
-              </span>
-            </li>
-          </ul>
-        </nav>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
       </header>
       {children}
     </>
