@@ -29,30 +29,29 @@ function Clip({
   onDelete: (id: string) => void;
 }) {
   return (
-    <div className="my-2 p-4 min-h-24 border flex gap-1 w-full justify-between items-center rounded-sm break-words">
+    <div
+      onClick={() => {
+        if (clip.type.includes("text")) {
+          navigator.clipboard.writeText(clip.text as string);
+        } else {
+          window.open(clip.imageUrl, "_blank");
+        }
+      }}
+      className="my-2 p-4 pr-10 min-h-24 relative border w-full rounded-sm break-words cursor-pointer"
+    >
       {clip.type.includes("image") && clip.imageUrl ? (
         <img src={clip.imageUrl} alt={clip.text} className="h-24" />
       ) : (
-        <code className="w-full">{clip.text}</code>
+        <code>{clip.text}</code>
       )}
-      <div className="flex gap-1">
-        {clip.type.includes("text") ? (
-          <CopyCheckButton
-            onClick={() => navigator.clipboard.writeText(clip.text as string)}
-          />
-        ) : (
-          <MdOutlineDownloading
-            className="cursor-pointer size-6"
-            onClick={() => {
-              window.open(clip.imageUrl, "_blank");
-            }}
-          />
-        )}
+      <div className="absolute top-2 right-2">
         <MdDeleteOutline
           className="cursor-pointer size-6"
           onClick={() => {
-            deleteClip(clip.id);
-            onDelete(clip.id);
+            if (window.confirm("Are you sure you want to delete this clip?")) {
+              deleteClip(clip.id);
+              onDelete(clip.id);
+            }
           }}
         />
       </div>
