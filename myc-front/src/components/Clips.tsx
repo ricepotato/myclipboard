@@ -11,7 +11,7 @@ export default function Clips({
   onDelete: (id: string) => void;
 }) {
   return (
-    <ul>
+    <ul className="p-4 pb-32">
       {clips.map((clip) => (
         <li key={`${clip.id}`}>
           <Clip clip={clip} onDelete={onDelete} />
