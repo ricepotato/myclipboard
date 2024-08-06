@@ -37,7 +37,7 @@ function App() {
     init();
   }, []);
   return (
-    <div className="App">
+    <div className="App relative">
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         {isLoading ? (
           <div>loading...</div>

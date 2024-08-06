@@ -4,6 +4,7 @@ import Clips from "../components/Clips";
 import { ClipboardForm } from "../components/form";
 import { addClip, getClips } from "../repository";
 import { IClip } from "../types";
+import { Link } from "react-router-dom";
 
 export default function Root() {
   const mainRef = useRef<HTMLDivElement>(null);
@@ -48,14 +49,21 @@ export default function Root() {
     setClips((prev) => prev.filter((clip) => clip.id !== id));
   };
   return (
-    <main className="h-full" ref={mainRef}>
-      <div className="relative">
-        <div className="flex justify-end p-4">
+    <>
+      <header className="fixed w-full flex items-center justify-between p-4 z-50 bg-gray-900">
+        <div>
           <RefreshCheckButton onClick={fetchClipsData} />
         </div>
-        <Clips clips={clips} onDelete={onDelete} />
-        <ClipboardForm onSubmit={onSubmit} />
-      </div>
-    </main>
+        <div>
+          <Link to="/login">Login</Link>
+        </div>
+      </header>
+      <main className="h-full" ref={mainRef}>
+        <div className="relative">
+          <Clips clips={clips} onDelete={onDelete} />
+          <ClipboardForm onSubmit={onSubmit} />
+        </div>
+      </main>
+    </>
   );
 }

@@ -1,4 +1,4 @@
-import { MdDeleteOutline, MdOutlineDownloading } from "react-icons/md";
+import { MdDeleteOutline } from "react-icons/md";
 import { deleteClip } from "../repository";
 import { IClip } from "../types";
 import { CopyCheckButton } from "./buttons";
@@ -11,7 +11,7 @@ export default function Clips({
   onDelete: (id: string) => void;
 }) {
   return (
-    <ul className="p-4 pb-32">
+    <ul className="p-4 pb-32 pt-16">
       {clips.map((clip) => (
         <li key={`${clip.id}`}>
           <Clip clip={clip} onDelete={onDelete} />
@@ -29,22 +29,22 @@ function Clip({
   onDelete: (id: string) => void;
 }) {
   return (
-    <div
-      onClick={() => {
-        if (clip.type.includes("text")) {
-          navigator.clipboard.writeText(clip.text as string);
-        } else {
-          window.open(clip.imageUrl, "_blank");
-        }
-      }}
-      className="my-2 p-4 pr-10 min-h-24 relative border w-full rounded-sm break-words cursor-pointer"
-    >
+    <div className="my-2 p-4 pr-10 min-h-24 relative border w-full rounded-sm break-words cursor-pointer">
       {clip.type.includes("image") && clip.imageUrl ? (
         <img src={clip.imageUrl} alt={clip.text} className="h-24" />
       ) : (
         <code>{clip.text}</code>
       )}
-      <div className="absolute top-2 right-2">
+      <div className="absolute top-2 right-2 flex flex-col gap-2 items-center">
+        <CopyCheckButton
+          onClick={() => {
+            if (clip.type.includes("text")) {
+              navigator.clipboard.writeText(clip.text as string);
+            } else {
+              window.open(clip.imageUrl, "_blank");
+            }
+          }}
+        ></CopyCheckButton>
         <MdDeleteOutline
           className="cursor-pointer size-6"
           onClick={() => {

@@ -7,7 +7,7 @@ export function CopyCheckButton({ onClick }: { onClick: () => void }) {
   // click 되면 check icon 으로 변경되었다가 800ms 후에 다시 copy icon 으로 변경
   return (
     <ToggleCheck onClick={onClick}>
-      <FaRegCopy className="cursor-pointer size-6" />
+      <FaRegCopy className="cursor-pointer size-5" />
     </ToggleCheck>
   );
 }
@@ -32,7 +32,7 @@ function ToggleCheck({
   return (
     <span>
       {clickCheck ? (
-        <FaCheck className="cursor-pointer size-6" />
+        <FaCheck className="cursor-pointer size-5" />
       ) : (
         <span
           onClick={() => {
