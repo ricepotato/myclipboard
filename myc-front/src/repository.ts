@@ -34,13 +34,15 @@ export const deleteClip = async (id: string) => {
 
 export const addClip = async ({ text, type, file }: IClipCreate) => {
   console.log(text, type, file);
+
   const user = auth.currentUser;
   if (user === null) {
     console.warn("User is not logged in");
     return;
   }
 
-  if (text === undefined && file === undefined) {
+  // 파일이 text, file 둘 다 없을 때
+  if (text === undefined && file && file?.size <= 0) {
     console.warn("No dataText or file");
     return;
   }

@@ -1,7 +1,7 @@
 "use client";
 
-import { ClipboardEvent, useState } from "react";
-import { Button } from "./ui/button";
+import { ClipboardEvent, useRef, useState } from "react";
+import { IoIosSend, IoMdAdd } from "react-icons/io";
 
 export function ClipboardForm({
   onSubmit,
@@ -11,6 +11,8 @@ export function ClipboardForm({
   const [image, setImage] = useState<string | null>(null);
   const [data, setData] = useState<string>("");
   const [type, setType] = useState<"text" | "image">("text");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handlePaste = (event: ClipboardEvent<HTMLInputElement>) => {
     const items = event.clipboardData?.items;
@@ -37,54 +39,63 @@ export function ClipboardForm({
   };
 
   return (
-    <div className="fixed bottom-1 w-full box-border p-4">
+    <div className="fixed bottom-0 w-full box-border bg-slate-900">
       <form
         onSubmit={(e) => {
           e.preventDefault();
           if (onSubmit) onSubmit(new FormData(e.target as HTMLFormElement));
-
           setData("");
         }}
+        ref={formRef}
       >
-        <label
-          htmlFor="dataInput"
-          className="block mb-2 text-sm font-medium text-gray-600"
-        ></label>
-
         <div>
           <div>
             {image !== null ? <img src={image} alt={"preview"} /> : null}
           </div>
-          <div>
+          <div className="flex justify-between">
             <input type="hidden" name="type" value={type} />
-            <div className="my-2">
+            <input
+              aria-label="fileInput"
+              id="fileInput"
+              type="file"
+              name="file"
+              onChange={(e) => {
+                console.log(e.target.files);
+                if (e.target.files && e.target.files.length > 0) {
+                  setType("image");
+                }
+              }}
+              className="hidden"
+              ref={fileInputRef}
+            />
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="w-14 flex justify-center items-center cursor-pointer border"
+            >
+              <IoMdAdd className="text-lg" />
+            </div>
+            <div className="border flex-grow">
               <input
-                aria-label="fileInput"
-                id="fileInput"
-                type="file"
-                name="file"
-                onChange={(e) => {
-                  if (e.target.files && e.target.files.length > 0) {
-                    setType("image");
-                  }
-                }}
+                onChange={(e) => setData(e.target.value)}
+                onPaste={handlePaste}
+                value={data}
+                id="dataInput"
+                placeholder="Input your data"
+                type="text"
+                name="data"
+                className="h-14 px-3 py-2 text-sm leading-tight bg-transparent text-white outline-none appearance-none focus:outline-none"
               />
             </div>
-            <input
-              onChange={(e) => setData(e.target.value)}
-              onPaste={handlePaste}
-              value={data}
-              id="dataInput"
-              placeholder="Input your data"
-              type="text"
-              name="data"
-              className="w-full h-12 px-3 py-2 mb-3 text-sm leading-tight text-gray-700 border rounded-md shadow appearance-none focus:outline-none focus:shadow-outline"
-            />
+            {data !== "" ? (
+              <div
+                onClick={() => formRef.current?.requestSubmit()}
+                className="w-14 flex justify-center items-center cursor-pointer border"
+              >
+                <IoIosSend className="text-lg" />
+              </div>
+            ) : null}
           </div>
         </div>
-        {/* <div className="flex justify-end">
-          <Button type="submit">Submit</Button>
-        </div> */}
       </form>
     </div>
   );
