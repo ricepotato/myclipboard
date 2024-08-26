@@ -6,12 +6,14 @@ import {
   limit,
   orderBy,
   query,
+  QuerySnapshot,
+  startAfter,
   updateDoc,
   where,
 } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { auth, db, storage } from "./firebase";
-import { IClip, IClipCreate } from "./types";
+import { ClipResult, IClipCreate } from "./types";
 
 // status enum
 // 0: active
@@ -65,21 +67,39 @@ export const addClip = async ({ text, type, file }: IClipCreate) => {
   }
 };
 
-export const getClips = async (size: number = 10): Promise<IClip[]> => {
+export const getClips = async (
+  size: number = 10,
+  prevSnapshot?: QuerySnapshot
+): Promise<ClipResult> => {
   const user = auth.currentUser;
   if (user === null) {
     console.warn("User is not logged in");
-    return [];
+    return { clips: [] };
   }
-  const clipsQuery = query(
-    collection(db, "clips"),
-    where("status", "==", ClipStatus.Active),
-    where("userId", "==", user.uid),
-    orderBy("createDatetime", "desc"),
-    limit(size)
-  );
-  const snapshot = await getDocs(clipsQuery);
-  const result = snapshot.docs.map((doc) => {
+  let clipsQuery = null;
+
+  if (prevSnapshot === undefined) {
+    clipsQuery = query(
+      collection(db, "clips"),
+      where("status", "==", ClipStatus.Active),
+      where("userId", "==", user.uid),
+      orderBy("createDatetime", "desc"),
+      limit(size)
+    );
+  } else {
+    const lastVisible = prevSnapshot.docs[prevSnapshot.docs.length - 1];
+    clipsQuery = query(
+      collection(db, "clips"),
+      where("status", "==", ClipStatus.Active),
+      where("userId", "==", user.uid),
+      orderBy("createDatetime", "desc"),
+      startAfter(lastVisible),
+      limit(size)
+    );
+  }
+
+  const documentSnapshot = await getDocs(clipsQuery);
+  const clips = documentSnapshot.docs.map((doc) => {
     const { userId, username, createDatetime, type, text, imageUrl } =
       doc.data();
     return {
@@ -92,5 +112,5 @@ export const getClips = async (size: number = 10): Promise<IClip[]> => {
       imageUrl,
     };
   });
-  return result;
+  return { clips, snapshot: documentSnapshot };
 };

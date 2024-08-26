@@ -120,7 +120,7 @@ export function ClipboardForm({
                 placeholder="Input your data"
                 type="text"
                 name="data"
-                className="h-14 px-3 py-2 text-sm leading-tight bg-transparent text-white outline-none appearance-none focus:outline-none"
+                className="h-14 w-full px-3 py-2 text-sm leading-tight bg-transparent text-white outline-none appearance-none focus:outline-none"
               />
             </div>
 

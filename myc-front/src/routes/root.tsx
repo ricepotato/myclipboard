@@ -1,13 +1,15 @@
 import { RefreshCheckButton } from "@/components/buttons";
+import { DocumentData, QuerySnapshot } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import Clips from "../components/Clips";
 import { ClipboardForm } from "../components/form";
 import { addClip, getClips } from "../repository";
 import { IClip } from "../types";
-import { Link } from "react-router-dom";
 
 export default function Root() {
   const mainRef = useRef<HTMLDivElement>(null);
+  const snapshotRef = useRef<QuerySnapshot<DocumentData, DocumentData>>();
   const onSubmit = async (data: FormData) => {
     const dataText = data.get("data");
     const type = data.get("type");
@@ -33,16 +35,23 @@ export default function Root() {
   }, []);
 
   useEffect(() => {
-    window.scrollTo(0, document.body.scrollHeight);
+    //window.scrollTo(0, document.body.scrollHeight);
   }, [clips]);
 
   const fetchClipsData = async () => {
     const result = await getClips();
-    setClips(result.reverse());
+    snapshotRef.current = result.snapshot;
+    setClips(result.clips.reverse());
+  };
 
-    //mainRef.current?.scrollTo(0, document.body.scrollHeight);
-    //mainRef.current?.scrollIntoView({ block: "end", inline: "end" });
-    //mainRef.current?.scrollTo(0, -9999);
+  const fetchClipsDataMore = async () => {
+    if (snapshotRef.current === undefined) {
+      return;
+    }
+
+    const result = await getClips(10, snapshotRef.current);
+    snapshotRef.current = result.snapshot;
+    setClips((prev) => [...result.clips.reverse(), ...prev]);
   };
 
   const onDelete = (id: string) => {
@@ -60,7 +69,17 @@ export default function Root() {
       </header>
       <main className="h-full" ref={mainRef}>
         <div className="relative">
-          <Clips clips={clips} onDelete={onDelete} />
+          <div className="p-4 pb-20 pt-16">
+            <div>
+              <button
+                onClick={fetchClipsDataMore}
+                className="border w-full rounded-sm py-4 hover:bg-slate-900"
+              >
+                More
+              </button>
+            </div>
+            <Clips clips={clips} onDelete={onDelete} />
+          </div>
           <ClipboardForm onSubmit={onSubmit} />
         </div>
       </main>
