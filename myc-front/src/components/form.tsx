@@ -1,6 +1,7 @@
 "use client";
 
 import { ClipboardEvent, useRef, useState } from "react";
+import { FaRegPaste } from "react-icons/fa6";
 import { IoIosSend, IoMdAdd } from "react-icons/io";
 
 export function ClipboardForm({
@@ -10,9 +11,44 @@ export function ClipboardForm({
 }) {
   const [image, setImage] = useState<string | null>(null);
   const [data, setData] = useState<string>("");
+  const [imageData, setImageData] = useState<string>("");
   const [type, setType] = useState<"text" | "image">("text");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+
+  const submitText = (text: string) => {
+    const formData = new FormData();
+    formData.append("type", "text");
+    formData.append("data", text);
+    onSubmit?.(formData);
+  };
+
+  const submitImage = (blob: Blob) => {
+    console.log(`submitImage ${blob}`);
+    const formData = new FormData();
+    formData.append("file", blob);
+    formData.append("type", "image");
+    formData.append("data", "image");
+    onSubmit?.(formData);
+  };
+
+  const submitClipboard = async () => {
+    const clipboardItems = await navigator.clipboard.read();
+    for (const clipboardItem of clipboardItems) {
+      for (const type of clipboardItem.types) {
+        const blob = await clipboardItem.getType(type);
+        if (type === "text/plain") {
+          submitText(await blob.text());
+          return;
+        }
+
+        if (type === "image/png") {
+          submitImage(blob);
+          return;
+        }
+      }
+    }
+  };
 
   const handlePaste = (event: ClipboardEvent<HTMLInputElement>) => {
     const items = event.clipboardData?.items;
@@ -27,13 +63,16 @@ export function ClipboardForm({
           setType("image");
         };
         if (blob !== null) {
-          reader.readAsDataURL(blob);
-          const formData = new FormData();
-          formData.append("file", blob);
-          formData.append("type", "image");
-          formData.append("data", "image");
-          onSubmit?.(formData);
+          submitImage(blob);
+          setData("");
+          setImageData("");
         }
+      } else if (item.type.includes("text")) {
+        item.getAsString((str) => {
+          submitText(str);
+          setData("");
+          setImageData("");
+        });
       }
     });
   };
@@ -60,11 +99,9 @@ export function ClipboardForm({
               type="file"
               name="file"
               onChange={(e) => {
-                console.log(e.target.files);
-                if (e.target.files && e.target.files.length > 0) {
-                  setType("image");
-                }
+                submitImage(e.target.files?.[0] as Blob);
               }}
+              value={imageData}
               className="hidden"
               ref={fileInputRef}
             />
@@ -86,6 +123,7 @@ export function ClipboardForm({
                 className="h-14 px-3 py-2 text-sm leading-tight bg-transparent text-white outline-none appearance-none focus:outline-none"
               />
             </div>
+
             {data !== "" ? (
               <div
                 onClick={() => formRef.current?.requestSubmit()}
@@ -93,7 +131,14 @@ export function ClipboardForm({
               >
                 <IoIosSend className="text-lg" />
               </div>
-            ) : null}
+            ) : (
+              <div
+                onClick={submitClipboard}
+                className="w-14 flex justify-center items-center cursor-pointer border"
+              >
+                <FaRegPaste className="text-lg" />
+              </div>
+            )}
           </div>
         </div>
       </form>
