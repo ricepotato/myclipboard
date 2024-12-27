@@ -1,4 +1,6 @@
+import clsx from "clsx";
 import { useState } from "react";
+import { CgSpinnerAlt } from "react-icons/cg";
 import { FaCheck } from "react-icons/fa";
 import { FaRegCopy } from "react-icons/fa6";
 import { IoMdRefresh } from "react-icons/io";
@@ -47,5 +49,28 @@ function ToggleCheck({
         </span>
       )}
     </span>
+  );
+}
+
+export function LoadMoreButton({
+  onClick,
+  pending,
+}: {
+  onClick: () => void;
+  pending: boolean;
+}) {
+  return (
+    <div>
+      <button
+        disabled={pending}
+        onClick={onClick}
+        className={clsx(
+          "border w-full h-14 rounded-sm py-4 hover:bg-slate-900",
+          pending && "bg-slate-900 flex justify-center items-center"
+        )}
+      >
+        {pending ? <CgSpinnerAlt className="animate-spin" /> : "More"}
+      </button>
+    </div>
   );
 }
