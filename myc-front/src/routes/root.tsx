@@ -1,6 +1,7 @@
-import { RefreshCheckButton } from "@/components/buttons";
+import { LoadMoreButton, RefreshCheckButton } from "@/components/buttons";
+import { debounce } from "es-toolkit";
 import { DocumentData, QuerySnapshot } from "firebase/firestore";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Clips from "../components/Clips";
 import { ClipboardForm } from "../components/form";
@@ -29,30 +30,56 @@ export default function Root() {
   };
 
   const [clips, setClips] = useState<IClip[]>([]);
+  const [newClip, setNewClip] = useState(false);
+  const [fetching, setFetching] = useState(false);
 
   useEffect(() => {
     fetchClipsData();
   }, []);
 
   useEffect(() => {
-    //window.scrollTo(0, document.body.scrollHeight);
-  }, [clips]);
+    if (newClip) {
+      window.scrollTo(0, document.body.scrollHeight);
+    }
+  }, [clips, newClip]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      console.log("scrolling");
+      const { scrollTop, offsetHeight } = document.documentElement;
+      console.log(scrollTop);
+      // if (window.innerHeight + scrollTop >= offsetHeight) {
+      //   console.log("fetching more");
+      // }
+      if (scrollTop <= 500) {
+        //console.log("fetching more");
+        //fetchClipsDataMore();
+      }
+    };
+    console.log("adding event listener");
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const fetchClipsData = async () => {
     const result = await getClips();
     snapshotRef.current = result.snapshot;
     setClips(result.clips.reverse());
+    setNewClip(true);
   };
 
-  const fetchClipsDataMore = async () => {
+  const cachedFetchClipsMore = useCallback(async () => {
     if (snapshotRef.current === undefined) {
       return;
     }
-
     const result = await getClips(10, snapshotRef.current);
     snapshotRef.current = result.snapshot;
     setClips((prev) => [...result.clips.reverse(), ...prev]);
-  };
+    setNewClip(false);
+    setFetching(false);
+  }, []);
+
+  const fetchClipsDataMore = debounce(cachedFetchClipsMore, 1500);
 
   const onDelete = (id: string) => {
     setClips((prev) => prev.filter((clip) => clip.id !== id));
@@ -70,14 +97,14 @@ export default function Root() {
       <main className="h-full" ref={mainRef}>
         <div className="relative">
           <div className="p-4 pb-20 pt-16">
-            <div>
-              <button
-                onClick={fetchClipsDataMore}
-                className="border w-full rounded-sm py-4 hover:bg-slate-900"
-              >
-                More
-              </button>
-            </div>
+            <LoadMoreButton
+              onClick={() => {
+                setFetching(true);
+                fetchClipsDataMore();
+              }}
+              pending={fetching}
+            />
+
             <Clips clips={clips} onDelete={onDelete} />
           </div>
           <ClipboardForm onSubmit={onSubmit} />
