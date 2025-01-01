@@ -29,11 +29,11 @@ function Clip({
   onDelete: (id: string) => void;
 }) {
   return (
-    <div className="my-2 p-4 pr-10 min-h-24 relative border w-full rounded-sm break-words cursor-pointer">
+    <div className="my-2 p-4  pb-12 pr-10 min-h-24 relative border w-full rounded-sm break-words">
       {clip.type.includes("image") && clip.imageUrl ? (
         <img src={clip.imageUrl} alt={clip.text} className="h-24" />
       ) : (
-        <code>{clip.text}</code>
+        <ClipCode text={clip.text} />
       )}
       <div className="absolute top-2 right-2 flex flex-col gap-2 items-center">
         <CopyCheckButton
@@ -55,6 +55,50 @@ function Clip({
           }}
         />
       </div>
+      <div className="absolute left-4 bottom-3 text-slate-600 select-none">
+        {formatDate(clip.createDatetime)}
+      </div>
     </div>
   );
 }
+
+function ClipCode({ text }: { text: string | undefined }) {
+  /** code 내에 html 링크가 있으면 <a> 를 붙임
+   */
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  if (text === undefined) {
+    return null;
+  }
+  const parts = text.split(urlRegex);
+  const content = parts.map((part, idx) => {
+    if (part.match(urlRegex)) {
+      return (
+        <a
+          href={part}
+          key={idx}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-orange-400 hover:underline"
+        >
+          {part}
+        </a>
+      );
+    } else {
+      return part;
+    }
+  });
+
+  return <code>{content}</code>;
+}
+
+const formatDate = (timestamp: number) => {
+  const date = new Date(timestamp);
+  return date.toLocaleString("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+};

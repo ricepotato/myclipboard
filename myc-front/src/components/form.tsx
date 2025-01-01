@@ -67,7 +67,7 @@ export function ClipboardForm({
           setData("");
           setImageData("");
         }
-      } else if (item.type.includes("text")) {
+      } else if (item.type.includes("text/plain")) {
         item.getAsString((str) => {
           submitText(str);
           setData("");
