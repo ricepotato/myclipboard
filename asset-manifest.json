@@ -1,15 +1,16 @@
 {
   "files": {
-    "main.css": "/myclipboard/static/css/main.870c4f68.css",
-    "main.js": "/myclipboard/static/js/main.8c4e87b5.js",
+    "main.css": "/myclipboard/static/css/main.0dacd621.css",
+    "main.js": "/myclipboard/static/js/main.311f996b.js",
     "static/js/453.85492d77.chunk.js": "/myclipboard/static/js/453.85492d77.chunk.js",
+    "service-worker.js": "/myclipboard/service-worker.js",
     "index.html": "/myclipboard/index.html",
-    "main.870c4f68.css.map": "/myclipboard/static/css/main.870c4f68.css.map",
-    "main.8c4e87b5.js.map": "/myclipboard/static/js/main.8c4e87b5.js.map",
+    "main.0dacd621.css.map": "/myclipboard/static/css/main.0dacd621.css.map",
+    "main.311f996b.js.map": "/myclipboard/static/js/main.311f996b.js.map",
     "453.85492d77.chunk.js.map": "/myclipboard/static/js/453.85492d77.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.870c4f68.css",
-    "static/js/main.8c4e87b5.js"
+    "static/css/main.0dacd621.css",
+    "static/js/main.311f996b.js"
   ]
 }
