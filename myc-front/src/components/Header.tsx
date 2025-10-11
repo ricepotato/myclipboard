@@ -4,11 +4,7 @@ import { auth } from "../firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { RefreshCheckButton } from "./buttons";
 
-interface HeaderProps {
-  onRefresh: () => void;
-}
-
-export default function Header({ onRefresh }: HeaderProps) {
+export default function Header({ onRefresh }: { onRefresh?: () => void }) {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -62,7 +58,7 @@ export default function Header({ onRefresh }: HeaderProps) {
           </div>
           <h1 className="text-xl font-bold text-white">MyClipboard</h1>
         </div>
-        <RefreshCheckButton onClick={onRefresh} />
+        {onRefresh ? <RefreshCheckButton onClick={onRefresh} /> : null}
       </div>
       <div className="flex items-center gap-3">
         {user ? (

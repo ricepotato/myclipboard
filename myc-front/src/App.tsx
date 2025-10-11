@@ -9,6 +9,7 @@ import ErrorPage from "./error-page";
 import { auth } from "./firebase";
 import Login from "./routes/login";
 import Root from "./routes/root";
+import Main from "./routes/main";
 
 const router = createHashRouter([
   {
@@ -23,6 +24,15 @@ const router = createHashRouter([
   {
     path: "/login",
     element: <Login />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/main",
+    element: (
+      <Layout>
+        <Main />
+      </Layout>
+    ),
     errorElement: <ErrorPage />,
   },
 ]);
