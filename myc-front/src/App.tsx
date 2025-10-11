@@ -30,7 +30,11 @@ const router = createHashRouter([
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const init = async () => {
-    await auth.authStateReady();
+    // 로딩 화면을 최소 1초는 보이도록 함
+    await Promise.all([
+      auth.authStateReady(),
+      new Promise((resolve) => setTimeout(resolve, 1000)),
+    ]);
     setIsLoading(false);
   };
 
