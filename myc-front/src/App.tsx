@@ -3,6 +3,7 @@ import "./index.css";
 import { useEffect, useState } from "react";
 import { RouterProvider, createHashRouter } from "react-router-dom";
 import Layout from "./components/Layout";
+import Loading from "./components/Loading";
 import { ThemeProvider } from "./components/theme-provider";
 import ErrorPage from "./error-page";
 import { auth } from "./firebase";
@@ -39,11 +40,7 @@ function App() {
   return (
     <div className="App relative">
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        {isLoading ? (
-          <div>loading...</div>
-        ) : (
-          <RouterProvider router={router}></RouterProvider>
-        )}
+        {isLoading ? <Loading /> : <RouterProvider router={router} />}
       </ThemeProvider>
     </div>
   );
