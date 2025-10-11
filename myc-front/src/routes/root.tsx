@@ -58,7 +58,7 @@ export default function Root() {
   return (
     <>
       <Header onRefresh={getClipsMore} />
-      <main className="h-full" ref={mainRef}>
+      <main className="h-full pretendard" ref={mainRef}>
         <div className="relative">
           <div className="p-4 pb-20 pt-24">
             <LoadMoreButton

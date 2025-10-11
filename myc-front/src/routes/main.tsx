@@ -35,17 +35,23 @@ export default function Main() {
 
       {/* Main content area */}
       <main
-        className={`h-screen pt-20 transition-all duration-300 ease-in-out ${
+        className={`h-screen pt-20 transition-all duration-300 ease-in-out pretendard ${
           isSidebarOpen ? "ml-80" : "ml-16"
         }`}
       >
         <div className="w-full h-full relative">
-          <Textarea
+          {/* <Textarea
             className="w-full h-full resize-none border-none focus-visible:ring-0 text-base p-6 pb-24"
             placeholder="여기에 입력하세요..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
-          />
+          /> */}
+          <div
+            contentEditable
+            className="w-full h-full resize-none border-none focus:outline-none text-base p-6 pb-24"
+          >
+            {content}
+          </div>
 
           {/* Save Button */}
           <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">

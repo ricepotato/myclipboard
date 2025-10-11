@@ -6,7 +6,7 @@ interface AsideProps {
 export default function Aside({ isOpen, onToggle }: AsideProps) {
   return (
     <aside
-      className={`fixed left-0 top-0 h-screen bg-slate-900 border-r border-slate-700 shadow-xl transition-all duration-300 ease-in-out z-40 ${
+      className={`fixed left-0 top-0 h-screen bg-slate-900 border-r border-slate-700 shadow-xl transition-all duration-300 ease-in-out z-40 pretendard ${
         isOpen ? "w-80" : "w-16"
       }`}
     >
