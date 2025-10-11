@@ -17,10 +17,10 @@ export default function GoogleButton() {
   return (
     <button
       onClick={onClick}
-      className="flex gap-2 justify-center border w-full h-14 rounded-sm py-4 hover:bg-slate-900"
+      className="flex items-center justify-center gap-3 w-full h-14 bg-white hover:bg-gray-50 text-gray-800 font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
     >
-      <FcGoogle size={20} />
-      Continue with Google
+      <FcGoogle size={24} />
+      <span>Google로 계속하기</span>
     </button>
   );
 }
