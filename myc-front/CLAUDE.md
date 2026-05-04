@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Working Guidelines
+
+When receiving feature modification or implementation requests, if there are any ambiguous aspects regarding functionality (e.g., expected behavior, edge cases, scope, UI interaction), ask the user clarifying questions before proceeding with implementation.
+
 ## Commands
 
 ```bash
