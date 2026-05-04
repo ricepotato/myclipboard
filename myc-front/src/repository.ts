@@ -34,37 +34,42 @@ export const deleteClip = async (id: string) => {
   await updateDoc(docRef, { status: ClipStatus.Deleted });
 };
 
-export const addClip = async ({ text, type, file }: IClipCreate) => {
-  console.log(text, type, file);
-
+export const addClip = async ({
+  text,
+  type,
+  file,
+}: IClipCreate): Promise<{ id: string; createDatetime: number } | undefined> => {
   const user = auth.currentUser;
   if (user === null) {
     console.warn("User is not logged in");
     return;
   }
 
-  // 파일이 text, file 둘 다 없을 때
-  if (text === undefined && file && file?.size <= 0) {
+  const hasFile = file && file.size > 0;
+
+  if (!text && !hasFile) {
     console.warn("No dataText or file");
     return;
   }
 
+  const createDatetime = Date.now();
   const payload = {
     userId: user.uid,
     username: user.displayName,
-    createDatetime: Date.now(),
+    createDatetime,
     type,
     text: text || "",
     status: ClipStatus.Active,
   };
 
-  const doc = await addDoc(collection(db, "clips"), payload);
-  if (file) {
-    const locationRef = ref(storage, `clips/${user.uid}/${doc.id}`);
+  const docRef = await addDoc(collection(db, "clips"), payload);
+  if (hasFile) {
+    const locationRef = ref(storage, `clips/${user.uid}/${docRef.id}`);
     const result = await uploadBytes(locationRef, file);
     const url = await getDownloadURL(result.ref);
-    updateDoc(doc, { imageUrl: url });
+    updateDoc(docRef, { imageUrl: url });
   }
+  return { id: docRef.id, createDatetime };
 };
 
 export const getClips = async (
