@@ -1,46 +1,76 @@
-# Getting Started with Create React App
+# MyClipboard
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+텍스트와 이미지를 클라우드에 저장하고 어디서든 불러올 수 있는 클립보드 앱.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- Google 계정으로 로그인
+- 텍스트 및 이미지 클립 저장
+- 클립보드에서 직접 붙여넣기 (텍스트 / 이미지)
+- 클립 복사 및 삭제
+- 페이지네이션으로 과거 클립 불러오기
+- Optimistic UI — 서버 응답 전에 즉시 화면에 반영
 
-### `npm start`
+## Tech Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- **React** + **TypeScript** (Create React App + CRACO)
+- **Firebase** — Firestore (데이터 저장), Firebase Auth (Google 로그인), Firebase Storage (이미지 업로드)
+- **React Router v6** — Hash 기반 라우팅 (GitHub Pages 호환)
+- **Tailwind CSS** + **shadcn/ui** (Radix UI)
+- **Pretendard Variable** 폰트
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Routes
 
-### `npm test`
+| Path | 설명 | 인증 |
+|------|------|------|
+| `/` | 클립 피드 (메인) | 필요 |
+| `/login` | Google 로그인 | 불필요 |
+| `/main` | 노트 에디터 | 필요 |
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Getting Started
 
-### `npm run build`
+### 환경 변수 설정
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+프로젝트 루트에 `.env` 파일을 생성하고 Firebase 설정을 입력합니다.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```
+REACT_APP_API_KEY=
+REACT_APP_AUTH_DOMAIN=
+REACT_APP_DATABASE_URL=
+REACT_APP_PROJECT_ID=
+REACT_APP_STORAGE_BUCKET=
+REACT_APP_MESSAGING_SENDER_ID=
+REACT_APP_APP_ID=
+REACT_APP_MEASUREMENT_ID=
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Commands
 
-### `npm run eject`
+```bash
+npm start        # 개발 서버 실행 (http://localhost:3000)
+npm run build    # 프로덕션 빌드
+npm test         # 테스트 실행
+npm run deploy   # GitHub Pages 배포
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Data Schema
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Firestore `clips` 컬렉션의 문서 구조:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```ts
+{
+  userId: string
+  username: string
+  createDatetime: number      // Unix timestamp (ms)
+  type: string                // "text/plain" | "image/png" 등
+  text: string
+  status: "active" | "deleted"
+  imageUrl?: string           // 이미지 클립인 경우
+}
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Deployment
 
-## Learn More
+GitHub Pages에 배포됩니다: `https://ricepotato.github.io/myclipboard/`
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+Hash 라우터(`createHashRouter`)를 사용하므로 별도의 서버 설정 없이 정적 호스팅이 가능합니다.
