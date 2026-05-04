@@ -88,7 +88,7 @@ function ClipCode({ text }: { text: string | undefined }) {
     }
   });
 
-  return <code>{content}</code>;
+  return <code className="whitespace-pre-wrap">{content}</code>;
 }
 
 const formatDate = (timestamp: number) => {

@@ -1,8 +1,10 @@
 "use client";
 
-import { ClipboardEvent, useRef, useState } from "react";
+import { ClipboardEvent, KeyboardEvent, useRef, useState } from "react";
 import { FaRegPaste } from "react-icons/fa6";
 import { IoIosSend, IoMdAdd } from "react-icons/io";
+
+const MIN_HEIGHT = 56;
 
 export function ClipboardForm({
   onSubmit,
@@ -15,6 +17,26 @@ export function ClipboardForm({
   const [type, setType] = useState<"text" | "image">("text");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const adjustHeight = () => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    const style = getComputedStyle(textarea);
+    const lineHeight = parseFloat(style.lineHeight);
+    const paddingTop = parseFloat(style.paddingTop);
+    const paddingBottom = parseFloat(style.paddingBottom);
+    const maxHeight = lineHeight * 5 + paddingTop + paddingBottom;
+    textarea.style.height = "auto";
+    textarea.style.height =
+      Math.min(Math.max(textarea.scrollHeight, MIN_HEIGHT), maxHeight) + "px";
+  };
+
+  const resetHeight = () => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    textarea.style.height = MIN_HEIGHT + "px";
+  };
 
   const submitText = (text: string) => {
     const formData = new FormData();
@@ -50,7 +72,7 @@ export function ClipboardForm({
     }
   };
 
-  const handlePaste = (event: ClipboardEvent<HTMLInputElement>) => {
+  const handlePaste = (event: ClipboardEvent<HTMLTextAreaElement>) => {
     const items = event.clipboardData?.items;
     Array.from(items || []).forEach((item) => {
       if (item.type.includes("image")) {
@@ -66,15 +88,26 @@ export function ClipboardForm({
           submitImage(blob);
           setData("");
           setImageData("");
+          resetHeight();
         }
       } else if (item.type.includes("text/plain")) {
         item.getAsString((str) => {
           submitText(str);
           setData("");
           setImageData("");
+          resetHeight();
         });
       }
     });
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key !== "Enter") return;
+    const isMobile = window.matchMedia("(pointer: coarse)").matches;
+    if (!isMobile && !e.shiftKey) {
+      e.preventDefault();
+      if (data.trim()) formRef.current?.requestSubmit();
+    }
   };
 
   return (
@@ -84,6 +117,7 @@ export function ClipboardForm({
           e.preventDefault();
           if (onSubmit) onSubmit(new FormData(e.target as HTMLFormElement));
           setData("");
+          resetHeight();
         }}
         ref={formRef}
       >
@@ -91,7 +125,7 @@ export function ClipboardForm({
           <div>
             {image !== null ? <img src={image} alt={"preview"} /> : null}
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between items-stretch">
             <input type="hidden" name="type" value={type} />
             <input
               aria-label="fileInput"
@@ -107,34 +141,40 @@ export function ClipboardForm({
             />
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="w-14 flex justify-center items-center cursor-pointer border"
+              className="w-14 flex justify-center items-center cursor-pointer border flex-shrink-0"
             >
               <IoMdAdd className="text-lg" />
             </div>
             <div className="border flex-grow">
-              <input
-                onChange={(e) => setData(e.target.value)}
+              <textarea
+                ref={textareaRef}
+                onChange={(e) => {
+                  setData(e.target.value);
+                  adjustHeight();
+                }}
                 onPaste={handlePaste}
+                onKeyDown={handleKeyDown}
                 value={data}
                 id="dataInput"
                 placeholder="Input your data"
-                type="text"
                 name="data"
-                className="h-14 w-full px-3 py-2 text-sm leading-tight bg-transparent text-white outline-none appearance-none focus:outline-none"
+                rows={1}
+                style={{ height: MIN_HEIGHT + "px" }}
+                className="w-full px-3 py-2 text-sm leading-tight bg-transparent text-white outline-none appearance-none focus:outline-none resize-none overflow-y-auto"
               />
             </div>
 
             {data !== "" ? (
               <div
                 onClick={() => formRef.current?.requestSubmit()}
-                className="w-14 flex justify-center items-center cursor-pointer border"
+                className="w-14 flex justify-center items-center cursor-pointer border flex-shrink-0"
               >
                 <IoIosSend className="text-lg" />
               </div>
             ) : (
               <div
                 onClick={submitClipboard}
-                className="w-14 flex justify-center items-center cursor-pointer border"
+                className="w-14 flex justify-center items-center cursor-pointer border flex-shrink-0"
               >
                 <FaRegPaste className="text-lg" />
               </div>
