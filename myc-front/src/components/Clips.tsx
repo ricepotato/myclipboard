@@ -56,7 +56,7 @@ function Clip({
         />
       </div>
       <div className="absolute left-4 bottom-3 text-slate-600 select-none">
-        {formatDate(clip.createDatetime)}
+        {clip.createDatetime !== undefined ? formatDate(clip.createDatetime) : ""}
       </div>
     </div>
   );

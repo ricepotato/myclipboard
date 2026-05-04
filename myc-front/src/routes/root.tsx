@@ -5,6 +5,8 @@ import { ClipboardForm } from "../components/form";
 import useClip from "../hooks/useClip";
 import { addClip } from "../repository";
 import Header from "../components/Header";
+import { auth } from "../firebase";
+import { IClip } from "../types";
 
 export default function Root() {
   const mainRef = useRef<HTMLDivElement>(null);
@@ -26,13 +28,35 @@ export default function Root() {
       return;
     }
 
-    await addClip({
+    const user = auth.currentUser;
+    const tempId = `temp-${Date.now()}`;
+    const optimisticClip: IClip = {
+      id: tempId,
+      userId: user?.uid || "",
+      username: user?.displayName || "",
+      type: type.toString(),
+      text: dataText?.toString() || "",
+      pending: true,
+    };
+
+    setClips((prev) => [...prev, optimisticClip]);
+    window.scrollTo(0, document.body.scrollHeight);
+
+    const result = await addClip({
       text: dataText ? dataText.toString() : undefined,
       type: type.toString(),
       file: file ? (file as File) : undefined,
     });
 
-    await getClipsData();
+    if (result) {
+      setClips((prev) =>
+        prev.map((clip) =>
+          clip.id === tempId
+            ? { ...clip, id: result.id, createDatetime: result.createDatetime, pending: false }
+            : clip
+        )
+      );
+    }
   };
 
   useEffect(() => {

@@ -15,6 +15,7 @@ export interface IClip extends IClipCreate {
   id: string;
   userId: string;
   username: string;
-  createDatetime: number;
+  createDatetime?: number;
   imageUrl?: string;
+  pending?: boolean;
 }
