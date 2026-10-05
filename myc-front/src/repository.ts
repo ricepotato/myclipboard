@@ -2,6 +2,7 @@ import {
   addDoc,
   collection,
   doc,
+  getDoc,
   getDocs,
   limit,
   orderBy,
@@ -13,7 +14,7 @@ import {
 } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { auth, db, storage } from "./firebase";
-import { ClipResult, IClipCreate } from "./types";
+import { ClipResult, IClip, IClipCreate } from "./types";
 
 // status enum
 // 0: active
@@ -24,8 +25,14 @@ const ClipStatus = {
   Deleted: "deleted",
 } as const;
 
+// 앱은 인증 완료를 기다리지 않고 렌더링되므로, 서버 요청 전에 인증 상태를 기다림
+const getCurrentUser = async () => {
+  await auth.authStateReady();
+  return auth.currentUser;
+};
+
 export const deleteClip = async (id: string) => {
-  const user = auth.currentUser;
+  const user = await getCurrentUser();
   if (user === null) {
     console.warn("User is not logged in");
     return;
@@ -34,12 +41,39 @@ export const deleteClip = async (id: string) => {
   await updateDoc(docRef, { status: ClipStatus.Deleted });
 };
 
+export const getClip = async (id: string): Promise<IClip | undefined> => {
+  const user = await getCurrentUser();
+  if (user === null) {
+    console.warn("User is not logged in");
+    return;
+  }
+  const snapshot = await getDoc(doc(db, "clips", id));
+  const data = snapshot.data();
+  // 다른 사용자의 클립이나 삭제된 클립은 없는 것으로 취급
+  if (!data || data.userId !== user.uid || data.status !== ClipStatus.Active) {
+    return;
+  }
+  const { userId, username, createDatetime, type, text, imageUrl } = data;
+  return { id: snapshot.id, userId, username, createDatetime, type, text, imageUrl };
+};
+
+export const updateClip = async (id: string, text: string): Promise<boolean> => {
+  const user = await getCurrentUser();
+  if (user === null) {
+    console.warn("User is not logged in");
+    return false;
+  }
+  const docRef = doc(db, "clips", id);
+  await updateDoc(docRef, { text, updateDatetime: Date.now() });
+  return true;
+};
+
 export const addClip = async ({
   text,
   type,
   file,
 }: IClipCreate): Promise<{ id: string; createDatetime: number } | undefined> => {
-  const user = auth.currentUser;
+  const user = await getCurrentUser();
   if (user === null) {
     console.warn("User is not logged in");
     return;
@@ -76,7 +110,7 @@ export const getClips = async (
   size: number = 10,
   prevSnapshot?: QuerySnapshot
 ): Promise<ClipResult> => {
-  const user = auth.currentUser;
+  const user = await getCurrentUser();
   if (user === null) {
     console.warn("User is not logged in");
     return { clips: [] };

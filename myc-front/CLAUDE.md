@@ -59,12 +59,13 @@ Firebase (Firestore/Storage/Auth)
         ↓
   hooks/useClip.ts       ← React hook managing clips state + pagination
         ↓
-  routes/root.tsx        ← main clipboard feed page
+  routes/editor.tsx      ← full-screen input (writes via addClip)
+  routes/list.tsx        ← clip list feed (reads via useClip)
 ```
 
 **Clip document schema** (Firestore `clips` collection):
 ```ts
-{ userId, username, createDatetime, type, text, status, imageUrl? }
+{ userId, username, createDatetime, type, text, status, imageUrl?, updateDatetime? }
 ```
 - `status`: `"active"` | `"deleted"` (soft delete via `updateDoc`)
 - `type`: MIME-type string (e.g. `"text/plain"`, `"image/png"`)
@@ -72,16 +73,18 @@ Firebase (Firestore/Storage/Auth)
 ### Routes
 | Path | Component | Auth |
 |------|-----------|------|
-| `/` | `Root` | Required (redirects if no user) |
+| `/` | `Editor` | Required (redirects if no user) |
+| `/edit/:id` | `Editor` (edit mode) | Required (redirects if no user) |
+| `/list` | `List` | Required (redirects if no user) |
 | `/login` | `Login` | Public |
-| `/main` | `Main` | Required |
 
-- **Root**: Clipboard feed — displays clips in reverse chronological order with load-more pagination. `ClipboardForm` is a fixed bottom input for adding new clips.
-- **Main**: Note editor view with collapsible `Aside` sidebar (toggle at `w-80` / `w-16`). Save logic (`⌘S`) is wired up but not yet implemented in the backend.
+- **Editor**: Start screen. The whole screen is a textarea; top-left hamburger goes to `/list`, bottom-right button (or `⌘/Ctrl+Enter`) saves. Saving runs in the background and clears the input immediately; a toast reports success/failure. Pasting an image saves it as an image clip right away.
+- **Editor (edit mode)**: Same screen at `/edit/:id`. Loads the clip via `getClip` (redirects to `/list` if missing, not owned, deleted, or an image) and saves via `updateClip` (sets `updateDatetime`, keeps `createDatetime`/order). Stays on screen after saving; save is disabled until the text changes. Image paste is ignored.
+- **List**: Clipboard feed — clicking a text clip opens it in edit mode; displays clips in reverse chronological order with load-more pagination. Bottom-right floating `+` button returns to `/`.
 - **Login**: Google OAuth via `signInWithPopup`.
 
 ### Auth Initialization
-`App.tsx` waits for `auth.authStateReady()` (min 1 second) before rendering routes, showing `Loading` in the interim.
+There is no loading screen: routes render immediately. `Layout` awaits `auth.authStateReady()` in the background and redirects to `/login` if there is no user. `repository.ts` functions also await `authStateReady()` before hitting Firestore, so calls made before auth resolves still work.
 
 ### Pagination
 `useClip` uses a Firestore `QuerySnapshot` ref to cursor-paginate. `getClipsData()` resets from the top; `getClipsMore()` loads the next page prepended to the current list.

@@ -1,4 +1,6 @@
+import clsx from "clsx";
 import { MdDeleteOutline } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 import { deleteClip } from "../repository";
 import { IClip } from "../types";
 import { CopyCheckButton } from "./buttons";
@@ -28,14 +30,32 @@ function Clip({
   clip: IClip;
   onDelete: (id: string) => void;
 }) {
+  const navigate = useNavigate();
+  const editable = !clip.type.includes("image");
+
+  const handleClick = () => {
+    // 텍스트를 드래그해 선택한 경우엔 수정 화면으로 이동하지 않음
+    if (!editable || window.getSelection()?.toString()) return;
+    navigate(`/edit/${clip.id}`);
+  };
+
   return (
-    <div className="my-2 p-4  pb-12 pr-10 min-h-24 relative border w-full rounded-sm break-words">
+    <div
+      onClick={handleClick}
+      className={clsx(
+        "my-2 p-4  pb-12 pr-10 min-h-24 relative border w-full rounded-sm break-words",
+        editable && "cursor-pointer hover:bg-slate-800/50 transition-colors"
+      )}
+    >
       {clip.type.includes("image") && clip.imageUrl ? (
         <img src={clip.imageUrl} alt={clip.text} className="h-24" />
       ) : (
         <ClipCode text={clip.text} />
       )}
-      <div className="absolute top-2 right-2 flex flex-col gap-2 items-center">
+      <div
+        className="absolute top-2 right-2 flex flex-col gap-2 items-center"
+        onClick={(e) => e.stopPropagation()}
+      >
         <CopyCheckButton
           onClick={() => {
             if (clip.type.includes("text")) {
@@ -78,6 +98,7 @@ function ClipCode({ text }: { text: string | undefined }) {
           key={idx}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
           className="text-orange-400 hover:underline"
         >
           {part}
