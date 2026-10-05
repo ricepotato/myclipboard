@@ -7,7 +7,6 @@ import {
   limit,
   orderBy,
   query,
-  QuerySnapshot,
   setDoc,
   startAfter,
   updateDoc,
@@ -25,7 +24,7 @@ import {
   removeIfUnchanged,
   updateLocalClipText,
 } from "./localStore";
-import { ClipResult, IClip, IClipCreate } from "./types";
+import { IClip, IClipCreate } from "./types";
 
 // status enum
 // 0: active
@@ -37,6 +36,7 @@ const ClipStatus = {
 } as const;
 
 const SYNCED_EVENT = "clips-synced";
+const UPDATED_EVENT = "clip-updated";
 
 // 앱은 인증 완료를 기다리지 않고 렌더링되므로, 서버 요청 전에 인증 상태를 기다림
 const getCurrentUser = async () => {
@@ -128,7 +128,15 @@ export const updateClip = async (id: string, text: string): Promise<boolean> => 
   await writeToFirestore(
     updateDoc(doc(db, "clips", id), { text, updateDatetime: Date.now() })
   );
+  window.dispatchEvent(new CustomEvent(UPDATED_EVENT, { detail: { id, text } }));
   return true;
+};
+
+// 서버 클립이 수정되었을 때 (목록 화면이 떠 있지 않아도 메모리의 목록을 갱신하기 위해 사용)
+export const onClipUpdated = (listener: (clip: { id: string; text: string }) => void) => {
+  const handler = (e: Event) => listener((e as CustomEvent<{ id: string; text: string }>).detail);
+  window.addEventListener(UPDATED_EVENT, handler);
+  return () => window.removeEventListener(UPDATED_EVENT, handler);
 };
 
 // 현재 사용자에게 보여줄 로컬 클립. 다른 계정으로 저장된 것은 제외
@@ -216,50 +224,24 @@ export const startBackgroundSync = () => {
   window.addEventListener("online", () => syncPendingClips());
 };
 
-export const getClips = async (
-  size: number = 10,
-  prevSnapshot?: QuerySnapshot
-): Promise<ClipResult> => {
+// 최신순으로 size개를 가져옴. before를 주면 그 시각보다 오래된 클립부터 가져옴
+export const getClips = async (size: number, before?: number): Promise<IClip[]> => {
   const user = await getCurrentUser();
   if (user === null) {
-    console.warn("User is not logged in");
-    return { clips: [] };
+    return [];
   }
-  let clipsQuery = null;
-
-  if (prevSnapshot === undefined) {
-    clipsQuery = query(
-      collection(db, "clips"),
-      where("status", "==", ClipStatus.Active),
-      where("userId", "==", user.uid),
-      orderBy("createDatetime", "desc"),
-      limit(size)
-    );
-  } else {
-    const lastVisible = prevSnapshot.docs[prevSnapshot.docs.length - 1];
-    clipsQuery = query(
-      collection(db, "clips"),
-      where("status", "==", ClipStatus.Active),
-      where("userId", "==", user.uid),
-      orderBy("createDatetime", "desc"),
-      startAfter(lastVisible),
-      limit(size)
-    );
-  }
+  const clipsQuery = query(
+    collection(db, "clips"),
+    where("status", "==", ClipStatus.Active),
+    where("userId", "==", user.uid),
+    orderBy("createDatetime", "desc"),
+    ...(before !== undefined ? [startAfter(before)] : []),
+    limit(size)
+  );
 
   const documentSnapshot = await getDocs(clipsQuery);
-  const clips = documentSnapshot.docs.map((doc) => {
-    const { userId, username, createDatetime, type, text, imageUrl } =
-      doc.data();
-    return {
-      id: doc.id,
-      userId,
-      username,
-      createDatetime,
-      type,
-      text,
-      imageUrl,
-    };
+  return documentSnapshot.docs.map((doc) => {
+    const { userId, username, createDatetime, type, text, imageUrl } = doc.data();
+    return { id: doc.id, userId, username, createDatetime, type, text, imageUrl };
   });
-  return { clips, snapshot: documentSnapshot };
 };
