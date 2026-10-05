@@ -2,9 +2,14 @@ import clsx from "clsx";
 import { ClipboardEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import { IoMdMenu } from "react-icons/io";
 import { useNavigate, useParams } from "react-router-dom";
+import { auth } from "../firebase";
 import { addClip, getClip, updateClip } from "../repository";
 
 type Toast = { message: string; error?: boolean };
+
+// 로그인하지 않았거나 오프라인이면 서버 반영은 나중에 이루어짐을 알려줌
+const savedMessage = () =>
+  auth.currentUser && navigator.onLine ? "저장됨" : "기기에 저장됨";
 
 export default function Editor() {
   const navigate = useNavigate();
@@ -64,7 +69,7 @@ export default function Editor() {
   const save = async (clip: { text?: string; type: string; file?: File }) => {
     try {
       const result = await addClip(clip);
-      showToast(result ? { message: "저장됨" } : { message: "저장 실패", error: true });
+      showToast(result ? { message: savedMessage() } : { message: "저장 실패", error: true });
     } catch (e) {
       console.error(e);
       showToast({ message: "저장 실패", error: true });
@@ -75,7 +80,7 @@ export default function Editor() {
     try {
       const result = await updateClip(clipId, nextText);
       if (result) setSavedText(nextText);
-      showToast(result ? { message: "저장됨" } : { message: "저장 실패", error: true });
+      showToast(result ? { message: savedMessage() } : { message: "저장 실패", error: true });
     } catch (e) {
       console.error(e);
       showToast({ message: "저장 실패", error: true });

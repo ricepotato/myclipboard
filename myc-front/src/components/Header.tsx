@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { auth } from "../firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { RefreshCheckButton } from "./buttons";
 
 export default function Header({ onRefresh }: { onRefresh?: () => void }) {
-  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -32,8 +31,8 @@ export default function Header({ onRefresh }: { onRefresh?: () => void }) {
   const handleLogout = async () => {
     const ok = window.confirm("로그아웃 하시겠습니까?");
     if (ok) {
+      // 로그인 없이도 앱을 쓸 수 있으므로 화면은 그대로 두고, 목록만 로컬 항목으로 바뀜
       await auth.signOut();
-      navigate("/login");
     }
   };
 

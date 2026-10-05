@@ -75,8 +75,16 @@ function Clip({
           }}
         />
       </div>
-      <div className="absolute left-4 bottom-3 text-slate-600 select-none">
+      <div className="absolute left-4 bottom-3 flex items-center gap-2 text-slate-600 select-none">
         {clip.createDatetime !== undefined ? formatDate(clip.createDatetime) : ""}
+        {clip.pending && (
+          <span
+            className="text-xs px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400"
+            title="브라우저에만 저장됨. 로그인하고 온라인이면 서버로 올라가요"
+          >
+            동기화 대기
+          </span>
+        )}
       </div>
     </div>
   );
