@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "/myclipboard/static/css/main.6c9e4d21.css",
-    "main.js": "/myclipboard/static/js/main.de0338e3.js",
+    "main.css": "/myclipboard/static/css/main.870df4ff.css",
+    "main.js": "/myclipboard/static/js/main.ff763f69.js",
     "static/js/453.85492d77.chunk.js": "/myclipboard/static/js/453.85492d77.chunk.js",
     "static/media/PretendardVariable.woff2": "/myclipboard/static/media/PretendardVariable.2bc582461caf4e05b51d.woff2",
     "service-worker.js": "/myclipboard/service-worker.js",
     "index.html": "/myclipboard/index.html",
-    "main.6c9e4d21.css.map": "/myclipboard/static/css/main.6c9e4d21.css.map",
-    "main.de0338e3.js.map": "/myclipboard/static/js/main.de0338e3.js.map",
+    "main.870df4ff.css.map": "/myclipboard/static/css/main.870df4ff.css.map",
+    "main.ff763f69.js.map": "/myclipboard/static/js/main.ff763f69.js.map",
     "453.85492d77.chunk.js.map": "/myclipboard/static/js/453.85492d77.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.6c9e4d21.css",
-    "static/js/main.de0338e3.js"
+    "static/css/main.870df4ff.css",
+    "static/js/main.ff763f69.js"
   ]
 }
