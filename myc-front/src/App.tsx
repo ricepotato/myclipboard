@@ -1,22 +1,28 @@
 import "./index.css";
 
-import { useEffect, useState } from "react";
 import { RouterProvider, createHashRouter } from "react-router-dom";
 import Layout from "./components/Layout";
-import Loading from "./components/Loading";
 import { ThemeProvider } from "./components/theme-provider";
 import ErrorPage from "./error-page";
-import { auth } from "./firebase";
+import Editor from "./routes/editor";
+import List from "./routes/list";
 import Login from "./routes/login";
-import Root from "./routes/root";
-import Main from "./routes/main";
 
 const router = createHashRouter([
   {
     path: "/",
     element: (
       <Layout>
-        <Root />
+        <Editor />
+      </Layout>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/list",
+    element: (
+      <Layout>
+        <List />
       </Layout>
     ),
     errorElement: <ErrorPage />,
@@ -26,35 +32,14 @@ const router = createHashRouter([
     element: <Login />,
     errorElement: <ErrorPage />,
   },
-  {
-    path: "/main",
-    element: (
-      <Layout>
-        <Main />
-      </Layout>
-    ),
-    errorElement: <ErrorPage />,
-  },
 ]);
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
-  const init = async () => {
-    // 로딩 화면을 최소 1초는 보이도록 함
-    await Promise.all([
-      auth.authStateReady(),
-      new Promise((resolve) => setTimeout(resolve, 1000)),
-    ]);
-    setIsLoading(false);
-  };
-
-  useEffect(() => {
-    init();
-  }, []);
+  // 로딩 화면 없이 즉시 렌더링. 인증/서버 연결은 백그라운드에서 진행됨
   return (
     <div className="App relative">
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        {isLoading ? <Loading /> : <RouterProvider router={router} />}
+        <RouterProvider router={router} />
       </ThemeProvider>
     </div>
   );

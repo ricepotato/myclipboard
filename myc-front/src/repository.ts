@@ -24,8 +24,14 @@ const ClipStatus = {
   Deleted: "deleted",
 } as const;
 
+// 앱은 인증 완료를 기다리지 않고 렌더링되므로, 서버 요청 전에 인증 상태를 기다림
+const getCurrentUser = async () => {
+  await auth.authStateReady();
+  return auth.currentUser;
+};
+
 export const deleteClip = async (id: string) => {
-  const user = auth.currentUser;
+  const user = await getCurrentUser();
   if (user === null) {
     console.warn("User is not logged in");
     return;
@@ -39,7 +45,7 @@ export const addClip = async ({
   type,
   file,
 }: IClipCreate): Promise<{ id: string; createDatetime: number } | undefined> => {
-  const user = auth.currentUser;
+  const user = await getCurrentUser();
   if (user === null) {
     console.warn("User is not logged in");
     return;
@@ -76,7 +82,7 @@ export const getClips = async (
   size: number = 10,
   prevSnapshot?: QuerySnapshot
 ): Promise<ClipResult> => {
-  const user = auth.currentUser;
+  const user = await getCurrentUser();
   if (user === null) {
     console.warn("User is not logged in");
     return { clips: [] };

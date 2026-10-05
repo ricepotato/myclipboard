@@ -1,52 +1,22 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  navigationMenuTriggerStyle,
-} from "./ui/navigation-menu";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
-  const onLogOut = async () => {
-    const ok = window.confirm("Are you sure you want to log out?");
-    if (ok) {
-      await auth.signOut();
-      navigate("/login");
-    }
-  };
-  const user = auth.currentUser;
-  console.log(user);
-  return (
-    <>
-      {children}
-      {/* <header>
-        <NavigationMenu>
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <Link to="/">
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Home
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/login">
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Login
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem className="cursor-pointer" onClick={onLogOut}>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Logout
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-      </header> */}
-    </>
-  );
+
+  useEffect(() => {
+    // 화면은 즉시 보여주고, 인증 상태 확인은 백그라운드에서 진행
+    let cancelled = false;
+    auth.authStateReady().then(() => {
+      if (!cancelled && auth.currentUser === null) {
+        navigate("/login", { replace: true });
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
+
+  return <>{children}</>;
 }
