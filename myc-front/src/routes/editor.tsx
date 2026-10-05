@@ -20,6 +20,10 @@ export default function Editor() {
   // 수정 모드에서 마지막으로 저장된 내용. 변경 여부 판단에 사용
   const [savedText, setSavedText] = useState("");
   const [loading, setLoading] = useState(isEdit);
+  // 새 항목을 처음 저장하는 중. 중복 생성을 막기 위해 그동안 저장 버튼을 끔
+  const [creating, setCreating] = useState(false);
+  // 이 화면에서 방금 만든 항목의 id. 수정 모드로 바뀌어도 서버에서 다시 불러오지 않음
+  const createdIdRef = useRef<string>();
   const [toast, setToast] = useState<Toast | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -30,7 +34,7 @@ export default function Editor() {
   }, []);
 
   useEffect(() => {
-    if (!isEdit) return;
+    if (!isEdit || id === createdIdRef.current) return;
     let cancelled = false;
     getClip(id)
       .then((clip) => {
@@ -65,7 +69,7 @@ export default function Editor() {
     toastTimerRef.current = setTimeout(() => setToast(null), 2000);
   };
 
-  // 저장은 백그라운드에서 진행하고, 입력창은 즉시 비워 다음 입력을 받음
+  // 붙여넣은 이미지를 별도 항목으로 저장
   const save = async (clip: { text?: string; type: string; file?: File }) => {
     try {
       const result = await addClip(clip);
@@ -73,6 +77,28 @@ export default function Editor() {
     } catch (e) {
       console.error(e);
       showToast({ message: "저장 실패", error: true });
+    }
+  };
+
+  // 새 항목은 저장 후에도 내용을 그대로 두고, 이 항목의 수정 모드로 전환.
+  // 같은 화면을 계속 쓰므로 이어서 고치고 저장하면 같은 항목이 갱신됨
+  const create = async (nextText: string) => {
+    setCreating(true);
+    try {
+      const result = await addClip({ text: nextText, type: "text" });
+      if (!result) {
+        showToast({ message: "저장 실패", error: true });
+        return;
+      }
+      createdIdRef.current = result.id;
+      setSavedText(nextText);
+      navigate(`/edit/${result.id}`, { replace: true });
+      showToast({ message: savedMessage() });
+    } catch (e) {
+      console.error(e);
+      showToast({ message: "저장 실패", error: true });
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -87,18 +113,16 @@ export default function Editor() {
     }
   };
 
-  const canSave = !loading && !!text.trim() && (!isEdit || text !== savedText);
+  const canSave = !loading && !creating && !!text.trim() && (!isEdit || text !== savedText);
 
   const handleSave = () => {
     if (!canSave) return;
+    // 저장 후에도 화면에 머무르며 내용을 유지
     if (isEdit) {
-      // 수정 모드는 화면에 머무르며 내용을 유지
       update(id, text);
-      return;
+    } else {
+      create(text);
     }
-    save({ text, type: "text" });
-    setText("");
-    textareaRef.current?.focus();
   };
 
   const handlePaste = (event: ClipboardEvent<HTMLTextAreaElement>) => {

@@ -59,7 +59,9 @@ Firebase (Firestore/Storage/Auth)
         ↕
   localStore.ts          ← IndexedDB outbox of clips not yet uploaded
         ↓
-  hooks/useClip.ts       ← React hook managing clips state + pagination
+  clipStore.ts           ← module-level list state (survives route changes) + pagination + recent-page cache
+        ↓
+  hooks/useClip.ts       ← thin useSyncExternalStore hook over clipStore
         ↓
   routes/editor.tsx      ← full-screen input (writes via addClip)
   routes/list.tsx        ← clip list feed (reads via useClip)
@@ -80,9 +82,9 @@ Firebase (Firestore/Storage/Auth)
 | `/list` | `List` | Optional |
 | `/login` | `Login` | Public |
 
-- **Editor**: Start screen. The whole screen is a textarea; top-left hamburger goes to `/list`, bottom-right button (or `⌘/Ctrl+Enter`) saves. Saving writes to the local outbox and clears the input immediately; the toast says "저장됨" when logged in and online, otherwise "기기에 저장됨". Pasting an image saves it as an image clip right away.
+- **Editor**: Start screen. The whole screen is a textarea; top-left hamburger goes to `/list`, bottom-right button (or `⌘/Ctrl+Enter`) saves. Saving writes to the local outbox and keeps the text; the screen then switches to edit mode for the new clip (`navigate(/edit/:id, {replace: true})`, same `Editor` instance, no reload), so further saves update that clip. Save is disabled while the first save is in flight; the toast says "저장됨" when logged in and online, otherwise "기기에 저장됨". Pasting an image saves it as an image clip right away.
 - **Editor (edit mode)**: Same screen at `/edit/:id`. Loads the clip via `getClip` (local outbox first, then Firestore; redirects to `/list` if missing, not owned, deleted, or an image) and saves via `updateClip` (sets `updateDatetime`, keeps `createDatetime`/order). Stays on screen after saving; save is disabled until the text changes. Image paste is ignored.
-- **List**: Clipboard feed — clicking a text clip opens it in edit mode; shows server clips merged with local outbox clips (badged "동기화 대기"), in reverse chronological order with load-more pagination. Bottom-right floating `+` button returns to `/`.
+- **List**: Clipboard feed — clicking a text clip opens it in edit mode; shows server clips merged with local outbox clips (badged "동기화 대기"), in chronological order (newest at the bottom); older clips load automatically when scrolling near the top (no More button, no loading indicators). Bottom-right floating `+` button returns to `/`.
 - **Login**: Google OAuth via `signInWithPopup`.
 
 ### Auth & Offline
@@ -93,8 +95,12 @@ Login is optional and there is no loading screen: routes render immediately, and
 - **Firestore offline cache**: `firebase.ts` uses `persistentLocalCache`, so previously loaded clips can be listed/edited offline. Firestore write promises don't settle while offline, so `writeToFirestore` doesn't await them when `navigator.onLine` is false.
 - The CRA service worker (production builds only) serves the app shell offline after the first visit.
 
-### Pagination
-`useClip` uses a Firestore `QuerySnapshot` ref to cursor-paginate. `getClipsData()` resets from the top; `getClipsMore()` loads the next page prepended to the current list.
+### List State & Pagination
+- `clipStore.ts` keeps the list in a module, so leaving `/list` (e.g. to edit a clip) and coming back shows the same list and scroll position. It is also initialized at app start, so the list is prefetched while the user is on the editor.
+- Pages are `PAGE_SIZE` (30) clips, cursor-paginated by `createDatetime` (`getClips(size, before?)`). `refreshLatest()` silently merges the newest page (dropping clips deleted elsewhere within that range); `loadOlder()` prepends the next older page.
+- The newest page is cached in `localStorage` (`myc:recentClips`, with the owner uid) and rendered immediately on app open, before any server response.
+- `List` restores the saved scroll position (or the bottom if the user was at the bottom / first visit), compensates scroll when older clips are prepended (with `overflow-anchor: none`), and follows new clips when at the bottom.
+- Edits (`clip-updated` event) and synced uploads (`clips-synced` event) are applied to the store even while `List` is not mounted.
 
 ### Deployment
 The app deploys to GitHub Pages at `https://ricepotato.github.io/myclipboard/`. The hash router is required for this hosting (no server-side routing support).
