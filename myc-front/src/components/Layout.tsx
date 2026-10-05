@@ -1,22 +1,5 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
-
+// 로그인은 선택 사항. 로그인하지 않아도 입력/목록 화면을 쓰고, 저장한 내용은 브라우저에 보관했다가
+// 로그인하면 백그라운드에서 서버와 동기화됨 (repository.startBackgroundSync)
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // 화면은 즉시 보여주고, 인증 상태 확인은 백그라운드에서 진행
-    let cancelled = false;
-    auth.authStateReady().then(() => {
-      if (!cancelled && auth.currentUser === null) {
-        navigate("/login", { replace: true });
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [navigate]);
-
   return <>{children}</>;
 }

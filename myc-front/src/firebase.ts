@@ -1,6 +1,10 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -22,4 +26,7 @@ export const auth = getAuth(app);
 
 export const storage = getStorage(app);
 
-export const db = getFirestore(app);
+// 오프라인에서도 마지막으로 불러온 클립을 보고 수정할 수 있도록 IndexedDB 캐시 사용
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+});

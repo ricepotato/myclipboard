@@ -9,7 +9,7 @@ import Header from "../components/Header";
 export default function List() {
   const navigate = useNavigate();
   const mainRef = useRef<HTMLDivElement>(null);
-  const { clips, setClips, pending, newClip, getClipsMore } = useClip();
+  const { clips, removeClip, pending, newClip, getClipsMore } = useClip();
 
   useEffect(() => {
     if (newClip) {
@@ -33,10 +33,6 @@ export default function List() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const onDelete = (id: string) => {
-    setClips((prev) => prev.filter((clip) => clip.id !== id));
-  };
-
   return (
     <>
       <Header onRefresh={getClipsMore} />
@@ -50,7 +46,7 @@ export default function List() {
               pending={pending}
             />
 
-            <Clips clips={clips} onDelete={onDelete} />
+            <Clips clips={clips} onDelete={removeClip} />
           </div>
           <button
             onClick={() => navigate("/")}
