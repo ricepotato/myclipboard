@@ -19,6 +19,15 @@ const router = createHashRouter([
     errorElement: <ErrorPage />,
   },
   {
+    path: "/edit/:id",
+    element: (
+      <Layout>
+        <Editor />
+      </Layout>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
     path: "/list",
     element: (
       <Layout>

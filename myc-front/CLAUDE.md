@@ -65,7 +65,7 @@ Firebase (Firestore/Storage/Auth)
 
 **Clip document schema** (Firestore `clips` collection):
 ```ts
-{ userId, username, createDatetime, type, text, status, imageUrl? }
+{ userId, username, createDatetime, type, text, status, imageUrl?, updateDatetime? }
 ```
 - `status`: `"active"` | `"deleted"` (soft delete via `updateDoc`)
 - `type`: MIME-type string (e.g. `"text/plain"`, `"image/png"`)
@@ -74,11 +74,13 @@ Firebase (Firestore/Storage/Auth)
 | Path | Component | Auth |
 |------|-----------|------|
 | `/` | `Editor` | Required (redirects if no user) |
+| `/edit/:id` | `Editor` (edit mode) | Required (redirects if no user) |
 | `/list` | `List` | Required (redirects if no user) |
 | `/login` | `Login` | Public |
 
 - **Editor**: Start screen. The whole screen is a textarea; top-left hamburger goes to `/list`, bottom-right button (or `⌘/Ctrl+Enter`) saves. Saving runs in the background and clears the input immediately; a toast reports success/failure. Pasting an image saves it as an image clip right away.
-- **List**: Clipboard feed — displays clips in reverse chronological order with load-more pagination. Bottom-right floating `+` button returns to `/`.
+- **Editor (edit mode)**: Same screen at `/edit/:id`. Loads the clip via `getClip` (redirects to `/list` if missing, not owned, deleted, or an image) and saves via `updateClip` (sets `updateDatetime`, keeps `createDatetime`/order). Stays on screen after saving; save is disabled until the text changes. Image paste is ignored.
+- **List**: Clipboard feed — clicking a text clip opens it in edit mode; displays clips in reverse chronological order with load-more pagination. Bottom-right floating `+` button returns to `/`.
 - **Login**: Google OAuth via `signInWithPopup`.
 
 ### Auth Initialization
