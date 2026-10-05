@@ -82,7 +82,7 @@ Firebase (Firestore/Storage/Auth)
 | `/list` | `List` | Optional |
 | `/login` | `Login` | Public |
 
-- **Editor**: Start screen. The whole screen is a textarea; top-left hamburger goes to `/list`, bottom-right button (or `⌘/Ctrl+Enter`) saves. Saving writes to the local outbox and clears the input immediately; the toast says "저장됨" when logged in and online, otherwise "기기에 저장됨". Pasting an image saves it as an image clip right away.
+- **Editor**: Start screen. The whole screen is a textarea; top-left hamburger goes to `/list`, bottom-right button (or `⌘/Ctrl+Enter`) saves. Saving writes to the local outbox and keeps the text; the screen then switches to edit mode for the new clip (`navigate(/edit/:id, {replace: true})`, same `Editor` instance, no reload), so further saves update that clip. Save is disabled while the first save is in flight; the toast says "저장됨" when logged in and online, otherwise "기기에 저장됨". Pasting an image saves it as an image clip right away.
 - **Editor (edit mode)**: Same screen at `/edit/:id`. Loads the clip via `getClip` (local outbox first, then Firestore; redirects to `/list` if missing, not owned, deleted, or an image) and saves via `updateClip` (sets `updateDatetime`, keeps `createDatetime`/order). Stays on screen after saving; save is disabled until the text changes. Image paste is ignored.
 - **List**: Clipboard feed — clicking a text clip opens it in edit mode; shows server clips merged with local outbox clips (badged "동기화 대기"), in chronological order (newest at the bottom); older clips load automatically when scrolling near the top (no More button, no loading indicators). Bottom-right floating `+` button returns to `/`.
 - **Login**: Google OAuth via `signInWithPopup`.
