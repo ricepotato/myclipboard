@@ -1,5 +1,11 @@
 import clsx from "clsx";
-import { ClipboardEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
+import {
+  ClipboardEvent,
+  KeyboardEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { IoMdMenu } from "react-icons/io";
 import { useNavigate, useParams } from "react-router-dom";
 import { auth } from "../firebase";
@@ -73,7 +79,11 @@ export default function Editor() {
   const save = async (clip: { text?: string; type: string; file?: File }) => {
     try {
       const result = await addClip(clip);
-      showToast(result ? { message: savedMessage() } : { message: "저장 실패", error: true });
+      showToast(
+        result
+          ? { message: savedMessage() }
+          : { message: "저장 실패", error: true },
+      );
     } catch (e) {
       console.error(e);
       showToast({ message: "저장 실패", error: true });
@@ -106,14 +116,19 @@ export default function Editor() {
     try {
       const result = await updateClip(clipId, nextText);
       if (result) setSavedText(nextText);
-      showToast(result ? { message: savedMessage() } : { message: "저장 실패", error: true });
+      showToast(
+        result
+          ? { message: savedMessage() }
+          : { message: "저장 실패", error: true },
+      );
     } catch (e) {
       console.error(e);
       showToast({ message: "저장 실패", error: true });
     }
   };
 
-  const canSave = !loading && !creating && !!text.trim() && (!isEdit || text !== savedText);
+  const canSave =
+    !loading && !creating && !!text.trim() && (!isEdit || text !== savedText);
 
   const handleSave = () => {
     if (!canSave) return;
@@ -130,7 +145,7 @@ export default function Editor() {
     if (isEdit) return;
     // 이미지는 붙여넣는 즉시 저장. 텍스트는 기본 동작대로 입력창에 삽입
     const imageItem = Array.from(event.clipboardData?.items || []).find(
-      (item) => item.type.includes("image")
+      (item) => item.type.includes("image"),
     );
     const file = imageItem?.getAsFile();
     if (!file) return;
@@ -156,6 +171,7 @@ export default function Editor() {
       </button>
 
       <textarea
+        name="clip_textarea"
         ref={textareaRef}
         value={text}
         onChange={(e) => setText(e.target.value)}
@@ -170,7 +186,9 @@ export default function Editor() {
         <div
           className={clsx(
             "fixed bottom-8 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm shadow-lg",
-            toast.error ? "bg-red-600 text-white" : "bg-slate-700 text-slate-100"
+            toast.error
+              ? "bg-red-600 text-white"
+              : "bg-slate-700 text-slate-100",
           )}
         >
           {toast.message}
